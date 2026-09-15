@@ -1,0 +1,112 @@
+<section class="cinema-container">
+  <header class="cinema-header">
+    <span class="eyebrow">Programación oficial</span>
+    <h1>Cartelera en Sala</h1>
+    <p>Seleccioná tu película para elegir función y butacas en tiempo real.</p>
+  </header>
+
+  @if (cargando()) {
+    <div class="loader-box">
+      <div class="spinner"></div>
+      <p>Consultando cartelera con Supabase...</p>
+    </div>
+  } @else if (error()) {
+    <div class="alert-error">
+      <p>{{ error() }}</p>
+    </div>
+  } @else {
+    <div class="movie-grid">
+      @for (peli of peliculas(); track peli.id) {
+        <article class="movie-card">
+          <div class="poster-wrapper">
+            @if (peli.imagen_url) {
+              <img [src]="peli.imagen_url" [alt]="peli.nombre" class="poster-img" />
+            } @else {
+              <div class="poster-placeholder">Sin Imagen</div>
+            }
+            <span class="age-badge">
+              {{ peli.clasificacion_edad ? '+' + peli.clasificacion_edad : 'ATP' }}
+            </span>
+          </div>
+
+          <div class="movie-body">
+            <h2 class="movie-title">{{ peli.nombre }}</h2>
+
+            <div class="movie-tags">
+              <span class="tag">{{ peli.duracion_minutos }} min</span>
+              <span class="tag highlight">2D / 3D</span>
+              <span class="tag">Castellano / Sub</span>
+            </div>
+
+            <p class="movie-synopsis">{{ peli.sinopsis }}</p>
+
+            <button class="btn-buy" (click)="abrirModalSala(peli)">Comprar Entradas</button>
+          </div>
+        </article>
+      } @empty {
+        <p class="empty-state">No hay películas cargadas en Supabase.</p>
+      }
+    </div>
+  }
+
+  <!-- Modal interactivo de distribución física de sala (Mail 1) -->
+  @if (peliculaSeleccionada()) {
+    <div class="modal-overlay" (click)="cerrarModalSala()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <header class="modal-header">
+          <div>
+            <h3>Distribución de Sala: {{ peliculaSeleccionada()?.nombre }}</h3>
+            <span class="modal-subtitle"
+              >Estructura base: 20 filas (A-T) | Columnas 4 - 20 - 4 butacas</span
+            >
+          </div>
+          <button class="btn-close" (click)="cerrarModalSala()">✕</button>
+        </header>
+
+        <div class="screen-indicator">
+          <div class="screen-curve"></div>
+          <span>PANTALLA</span>
+        </div>
+
+        <div class="seating-plan">
+          @for (fila of filas; track fila) {
+            <div class="seat-row">
+              <span class="row-label">{{ fila }}</span>
+
+              <!-- Bloque izquierdo: 4 butacas -->
+              <div class="seat-block">
+                @for (col of [1, 2, 3, 4]; track col) {
+                  <span class="seat-dot" [title]="'Butaca ' + fila + col"></span>
+                }
+              </div>
+
+              <!-- Bloque central: 20 butacas -->
+              <div class="seat-block center-block">
+                @for (col of butacasCentro; track col) {
+                  <span class="seat-dot" [title]="'Butaca ' + fila + (col + 4)"></span>
+                }
+              </div>
+
+              <!-- Bloque derecho: 4 butacas -->
+              <div class="seat-block">
+                @for (col of [25, 26, 27, 28]; track col) {
+                  <span class="seat-dot" [title]="'Butaca ' + fila + col"></span>
+                }
+              </div>
+
+              <span class="row-label">{{ fila }}</span>
+            </div>
+          }
+        </div>
+
+        <footer class="modal-footer">
+          <div class="legend">
+            <span class="legend-item"><span class="seat-dot"></span> 28 butacas por fila</span>
+            <span class="legend-item">Total sala: 560 localidades</span>
+          </div>
+          <button class="btn-cancel" (click)="cerrarModalSala()">Cerrar vista previa</button>
+        </footer>
+      </div>
+    </div>
+  }
+</section>

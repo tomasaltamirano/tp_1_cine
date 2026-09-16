@@ -7,21 +7,20 @@ import { Pelicula } from '../../core/models/pelicula.model';
 @Component({
   selector: 'app-peliculas-list',
   standalone: true,
-  imports: [CommonModule, FormsModule], // <-- 2. Faltaba agregar FormsModule aquí
+  imports: [CommonModule, FormsModule],
   templateUrl: './peliculas-list.component.html',
   styleUrl: './peliculas-list.component.css',
 })
 export class PeliculasListComponent implements OnInit {
   private peliculasService = inject(PeliculasService);
 
-  // --- ESTADOS BASE (Sin duplicar) ---
   peliculas = signal<Pelicula[]>([]);
   cargando = signal<boolean>(true);
   error = signal<string | null>(null);
 
   peliculaParaHorario = signal<Pelicula | null>(null);
 
-  // Datos simulados para la UI
+  // Datos para la UI
   fechasDisponibles = ['Hoy, 16 Sep', 'Jue 17', 'Vie 18', 'Sáb 19', 'Dom 20'];
   fechaSeleccionada = signal<string>('Hoy, 16 Sep');
 
@@ -31,7 +30,6 @@ export class PeliculasListComponent implements OnInit {
   horariosDisponibles = ['18:30', '21:45', '23:15'];
   sedeActual = 'Temperley - Av. H. Yrigoyen 1234';
 
-  // --- ESTADOS DEL MODAL Y SALA ---
   filas = [
     'A',
     'B',
@@ -57,7 +55,6 @@ export class PeliculasListComponent implements OnInit {
   butacasCentro = Array.from({ length: 20 }, (_, i) => i + 1);
   peliculaSeleccionada = signal<Pelicula | null>(null);
 
-  // --- ESTADOS DE FILTRO ---
   terminoBusqueda = signal<string>('');
   generosActivos = signal<string[]>([]);
   mostrarCategorias = signal<boolean>(false);
@@ -68,7 +65,6 @@ export class PeliculasListComponent implements OnInit {
     this.mostrarCategorias.update((v) => !v);
   }
 
-  // --- SEÑALES COMPUTADAS ---
   peliculasFiltradas = computed(() => {
     let filtradas = this.peliculas();
     const texto = this.terminoBusqueda().toLowerCase();
@@ -77,8 +73,6 @@ export class PeliculasListComponent implements OnInit {
       filtradas = filtradas.filter((p) => p.nombre.toLowerCase().includes(texto));
     }
 
-    // (Próximamente: lógica para filtrar por los géneros seleccionados)
-
     return filtradas;
   });
 
@@ -86,7 +80,7 @@ export class PeliculasListComponent implements OnInit {
   peliculasDestacadas = computed(() => this.peliculasFiltradas().slice(0, 3));
   peliculasGrilla = computed(() => this.peliculasFiltradas().slice(3));
 
-  // --- MÉTODOS (Un solo ngOnInit) ---
+  // --- MÉTODOS
   async ngOnInit(): Promise<void> {
     try {
       const data = await this.peliculasService.getPeliculas();
@@ -117,7 +111,7 @@ export class PeliculasListComponent implements OnInit {
 
   // Métodos del modal de horarios
   abrirModalHorarios(peli: Pelicula, event: Event): void {
-    event.stopPropagation(); // Evita que se disparen clics no deseados
+    event.stopPropagation();
     this.peliculaParaHorario.set(peli);
   }
 
@@ -134,7 +128,6 @@ export class PeliculasListComponent implements OnInit {
   }
 
   continuarACompra(): void {
-    // Acá en el futuro enlazaremos con el componente del carrito lateral y la sala
     console.log(
       'Continuar con:',
       this.peliculaParaHorario()?.nombre,

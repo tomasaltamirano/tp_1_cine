@@ -1,5 +1,4 @@
 <section class="cinema-layout">
-  <!-- CABECERA (Estilo Cinema Adrogué) -->
   <header class="adrogue-header">
     <div class="title-group">
       <h1>CARTELERA</h1>
@@ -7,7 +6,6 @@
     </div>
 
     <div class="header-actions">
-      <!-- Buscador -->
       <input
         type="text"
         placeholder="Buscar película..."
@@ -16,7 +14,6 @@
         class="search-input"
       />
 
-      <!-- Botón de Categorías -->
       <button
         class="btn-category"
         (click)="toggleCategorias()"
@@ -27,7 +24,6 @@
     </div>
   </header>
 
-  <!-- Filtros desplegables -->
   @if (mostrarCategorias()) {
     <div class="genres-dropdown">
       @for (genero of listaGeneros; track genero) {
@@ -52,7 +48,6 @@
       <p>{{ error() }}</p>
     </div>
   } @else {
-    <!-- TOP 3 DESTACADAS -->
     @if (peliculasDestacadas().length > 0) {
       <div class="hero-section">
         <h2 class="section-title">Películas Destacadas</h2>
@@ -60,7 +55,6 @@
           @for (peli of peliculasDestacadas(); track peli.id) {
             <article class="hero-card">
               @if (peli.imagen_url) {
-                <!-- Clic en la imagen abre horarios -->
                 <img
                   [src]="peli.imagen_url"
                   [alt]="peli.nombre"
@@ -73,7 +67,6 @@
                 <h3>{{ peli.nombre }}</h3>
                 <p>{{ peli.duracion_minutos }} min | +{{ peli.clasificacion_edad || 'ATP' }}</p>
 
-                <!-- BOTONES NUEVOS -->
                 <div class="card-actions">
                   <button class="btn-comprar" (click)="abrirModalHorarios(peli, $event)">
                     Horarios
@@ -87,7 +80,6 @@
       </div>
     }
 
-    <!-- RESTO DEL CATÁLOGO -->
     @if (peliculasGrilla().length > 0) {
       <div class="standard-section">
         <h2 class="section-title">Cartelera General</h2>
@@ -95,7 +87,6 @@
           @for (peli of peliculasGrilla(); track peli.id) {
             <article class="standard-card">
               @if (peli.imagen_url) {
-                <!-- Clic en la imagen abre horarios -->
                 <img
                   [src]="peli.imagen_url"
                   [alt]="peli.nombre"
@@ -108,7 +99,6 @@
                   >{{ peli.duracion_minutos }} min | +{{ peli.clasificacion_edad || 'ATP' }}</span
                 >
 
-                <!-- BOTONES NUEVOS -->
                 <div class="card-actions">
                   <button class="btn-comprar" (click)="abrirModalHorarios(peli, $event)">
                     Horarios
@@ -127,7 +117,6 @@
     }
   }
 
-  <!-- MODAL DE SELECCIÓN DE HORARIOS (Centrado) -->
   @if (peliculaParaHorario()) {
     <div class="modal-overlay" (click)="cerrarModalHorarios()">
       <div class="modal-horarios-centered" (click)="$event.stopPropagation()">
@@ -141,7 +130,6 @@
         </header>
 
         <div class="mh-body">
-          <!-- Selector de Fechas -->
           <div class="mh-section">
             <h4>FECHA</h4>
             <div class="pill-group">
@@ -157,7 +145,6 @@
             </div>
           </div>
 
-          <!-- Selector de Formato -->
           <div class="mh-section">
             <h4>FORMATO</h4>
             <div class="pill-group">
@@ -173,7 +160,6 @@
             </div>
           </div>
 
-          <!-- Selector de Horarios -->
           <div class="mh-section">
             <h4>HORARIOS DISPONIBLES</h4>
             <div class="time-grid">

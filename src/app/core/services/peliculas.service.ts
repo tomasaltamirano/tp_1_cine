@@ -13,7 +13,7 @@ export class PeliculasService {
       .from('peliculas')
       .select('*')
       .eq('activa', true)
-      .order('fecha_estreno', { ascending: false });
+      .order('ventas_historicas', { ascending: false });
 
     if (error) {
       console.error('Error al obtener películas:', error);

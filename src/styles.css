@@ -1,4 +1,30 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  /* BASE  */
+  --bg-base: #000000; /* Fondo principal */
+  --bg-surface: #111827; /* Tarjetas y modales */
+  --bg-surface-hover: #1f2937; /* Hover de tarjetas */
+  --border-subtle: #1a1a1a; /* Separadores */
+  --border-strong: #333333; /* Bordes de botones/inputs */
+
+  /*TIPOGRAFÍA */
+  --text-primary: #ffffff; /* Títulos y textos destacados */
+  --text-secondary: #9ca3af; /* Subtítulos y descripciones */
+  --text-muted: #666666; /* Contadores y texto secundario */
+
+  /* ACENTOS Y ACCIONES */
+  --acento-cyan: #00bcd4; /* Filtros activos y selección */
+  --acento-cyan-hover: #008ba3;
+  --acento-red: #e50914; /* Botones de alerta o CTA principal */
+
+  /* BUTACAS*/
+  --asiento-free: #334155; /* Libre (Gris azulado) */
+  --asiento-free-hover: #475569; /* Libre al pasar el mouse */
+  --asiento-selected: #00bcd4; /* Seleccionada (Cyan) */
+  --asiento-occupied: #1a1a1a; /* Ocupada (Mimetizada con el fondo/apagada) */
+  --asiento-vip: #f59e0b; /* VIP (Dorado) */
+  --asiento-accessible: #10b981; /* Discapacidad (Verde claro/esmeralda) */
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -18,39 +44,4 @@ body {
     Roboto,
     sans-serif;
   -webkit-font-smoothing: antialiased;
-}
-
-:root {
-  /* =========================================
-     PALETA BASE (Fondos y Superficies)
-     ========================================= */
-  --bg-base: #000000; /* Fondo principal */
-  --bg-surface: #111827; /* Tarjetas y modales */
-  --bg-surface-hover: #1f2937; /* Hover de tarjetas */
-  --border-subtle: #1a1a1a; /* Separadores */
-  --border-strong: #333333; /* Bordes de botones/inputs */
-
-  /* =========================================
-     TIPOGRAFÍA
-     ========================================= */
-  --text-primary: #ffffff; /* Títulos y textos destacados */
-  --text-secondary: #9ca3af; /* Subtítulos y descripciones */
-  --text-muted: #666666; /* Contadores y texto secundario */
-
-  /* =========================================
-     ACENTOS Y ACCIONES
-     ========================================= */
-  --acento-cyan: #00bcd4; /* Filtros activos y selección */
-  --acento-cyan-hover: #008ba3;
-  --acento-red: #e50914; /* Botones de alerta o CTA principal */
-
-  /* =========================================
-     ESTADOS DE BUTACAS
-     ========================================= */
-  --asiento-free: #334155; /* Libre (Gris azulado) */
-  --asiento-free-hover: #475569; /* Libre al pasar el mouse */
-  --asiento-selected: #00bcd4; /* Seleccionada (Cyan) */
-  --asiento-occupied: #1a1a1a; /* Ocupada (Mimetizada con el fondo/apagada) */
-  --asiento-vip: #f59e0b; /* VIP (Dorado) */
-  --asiento-accessible: #10b981; /* Discapacidad (Verde claro/esmeralda) */
 }

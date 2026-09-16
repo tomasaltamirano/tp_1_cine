@@ -1,8 +1,35 @@
-<header class="navbar">
-  <div class="brand">
-    <a routerLink="/peliculas">CINE APP</a>
+<header class="ca-navbar">
+  <div class="nav-left">
+    <!-- Logo simulado estilo Cinema Adrogué -->
+    <a routerLink="/peliculas" class="brand">
+      <div class="logo-icon">CA</div>
+      <div class="logo-text">CINE<br />APP</div>
+    </a>
+
+    <nav class="nav-links">
+      <a routerLink="/peliculas" routerLinkActive="active">CARTELERA</a>
+      <a routerLink="/candy-bar">🍿 CANDY</a>
+      <a routerLink="/complejo">COMPLEJO</a>
+    </nav>
   </div>
-  <nav class="nav-links">
-    <a routerLink="/peliculas" routerLinkActive="active">Cartelera</a>
-  </nav>
+
+  <div class="nav-right">
+    <button class="btn-user" aria-label="Perfil de usuario">
+      <!-- Ícono SVG de usuario básico -->
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+        <circle cx="12" cy="7" r="4"></circle>
+      </svg>
+    </button>
+  </div>
 </header>

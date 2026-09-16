@@ -1,111 +1,191 @@
-<section class="cinema-container">
-  <header class="cinema-header">
-    <span class="eyebrow">Programación oficial</span>
-    <h1>Cartelera en Sala</h1>
-    <p>Seleccioná tu película para elegir función y butacas en tiempo real.</p>
+<section class="cinema-layout">
+  <!-- CABECERA (Estilo Cinema Adrogué) -->
+  <header class="adrogue-header">
+    <div class="title-group">
+      <h1>CARTELERA</h1>
+      <span class="movie-count">{{ peliculas().length }} películas</span>
+    </div>
+
+    <div class="header-actions">
+      <!-- Buscador -->
+      <input
+        type="text"
+        placeholder="Buscar película..."
+        [ngModel]="terminoBusqueda()"
+        (ngModelChange)="terminoBusqueda.set($event)"
+        class="search-input"
+      />
+
+      <!-- Botón de Categorías -->
+      <button
+        class="btn-category"
+        (click)="toggleCategorias()"
+        [class.active]="mostrarCategorias()"
+      >
+        ⇌ Ordenar por categoría
+      </button>
+    </div>
   </header>
+
+  <!-- Filtros desplegables -->
+  @if (mostrarCategorias()) {
+    <div class="genres-dropdown">
+      @for (genero of listaGeneros; track genero) {
+        <button
+          class="genre-pill"
+          [class.active]="generosActivos().includes(genero)"
+          (click)="toggleGenero(genero)"
+        >
+          {{ genero }}
+        </button>
+      }
+    </div>
+  }
 
   @if (cargando()) {
     <div class="loader-box">
       <div class="spinner"></div>
-      <p>Consultando cartelera con Supabase...</p>
+      <p>Consultando cartelera...</p>
     </div>
   } @else if (error()) {
     <div class="alert-error">
       <p>{{ error() }}</p>
     </div>
   } @else {
-    <div class="movie-grid">
-      @for (peli of peliculas(); track peli.id) {
-        <article class="movie-card">
-          <div class="poster-wrapper">
-            @if (peli.imagen_url) {
-              <img [src]="peli.imagen_url" [alt]="peli.nombre" class="poster-img" />
-            } @else {
-              <div class="poster-placeholder">Sin Imagen</div>
-            }
-            <span class="age-badge">
-              {{ peli.clasificacion_edad ? '+' + peli.clasificacion_edad : 'ATP' }}
-            </span>
-          </div>
+    <!-- TOP 3 DESTACADAS -->
+    @if (peliculasDestacadas().length > 0) {
+      <div class="hero-section">
+        <h2 class="section-title">Películas Destacadas</h2>
+        <div class="hero-grid">
+          @for (peli of peliculasDestacadas(); track peli.id) {
+            <article class="hero-card">
+              @if (peli.imagen_url) {
+                <!-- Clic en la imagen abre horarios -->
+                <img
+                  [src]="peli.imagen_url"
+                  [alt]="peli.nombre"
+                  (click)="abrirModalHorarios(peli, $event)"
+                />
+              } @else {
+                <div class="poster-placeholder">Sin Imagen</div>
+              }
+              <div class="hero-info">
+                <h3>{{ peli.nombre }}</h3>
+                <p>{{ peli.duracion_minutos }} min | +{{ peli.clasificacion_edad || 'ATP' }}</p>
 
-          <div class="movie-body">
-            <h2 class="movie-title">{{ peli.nombre }}</h2>
-
-            <div class="movie-tags">
-              <span class="tag">{{ peli.duracion_minutos }} min</span>
-              <span class="tag highlight">2D / 3D</span>
-              <span class="tag">Castellano / Sub</span>
-            </div>
-
-            <p class="movie-synopsis">{{ peli.sinopsis }}</p>
-
-            <button class="btn-buy" (click)="abrirModalSala(peli)">Comprar Entradas</button>
-          </div>
-        </article>
-      } @empty {
-        <p class="empty-state">No hay películas cargadas en Supabase.</p>
-      }
-    </div>
-  }
-
-  <!-- Modal interactivo de distribución física de sala (Mail 1) -->
-  @if (peliculaSeleccionada()) {
-    <div class="modal-overlay" (click)="cerrarModalSala()">
-      <div class="modal-content" (click)="$event.stopPropagation()">
-        <header class="modal-header">
-          <div>
-            <h3>Distribución de Sala: {{ peliculaSeleccionada()?.nombre }}</h3>
-            <span class="modal-subtitle"
-              >Estructura base: 20 filas (A-T) | Columnas 4 - 20 - 4 butacas</span
-            >
-          </div>
-          <button class="btn-close" (click)="cerrarModalSala()">✕</button>
-        </header>
-
-        <div class="screen-indicator">
-          <div class="screen-curve"></div>
-          <span>PANTALLA</span>
-        </div>
-
-        <div class="seating-plan">
-          @for (fila of filas; track fila) {
-            <div class="seat-row">
-              <span class="row-label">{{ fila }}</span>
-
-              <!-- Bloque izquierdo: 4 butacas -->
-              <div class="seat-block">
-                @for (col of [1, 2, 3, 4]; track col) {
-                  <span class="seat-dot" [title]="'Butaca ' + fila + col"></span>
-                }
+                <!-- BOTONES NUEVOS -->
+                <div class="card-actions">
+                  <button class="btn-comprar" (click)="abrirModalHorarios(peli, $event)">
+                    Horarios
+                  </button>
+                  <button class="btn-detalles">Ver detalles</button>
+                </div>
               </div>
-
-              <!-- Bloque central: 20 butacas -->
-              <div class="seat-block center-block">
-                @for (col of butacasCentro; track col) {
-                  <span class="seat-dot" [title]="'Butaca ' + fila + (col + 4)"></span>
-                }
-              </div>
-
-              <!-- Bloque derecho: 4 butacas -->
-              <div class="seat-block">
-                @for (col of [25, 26, 27, 28]; track col) {
-                  <span class="seat-dot" [title]="'Butaca ' + fila + col"></span>
-                }
-              </div>
-
-              <span class="row-label">{{ fila }}</span>
-            </div>
+            </article>
           }
         </div>
+      </div>
+    }
 
-        <footer class="modal-footer">
-          <div class="legend">
-            <span class="legend-item"><span class="seat-dot"></span> 28 butacas por fila</span>
-            <span class="legend-item">Total sala: 560 localidades</span>
+    <!-- RESTO DEL CATÁLOGO -->
+    @if (peliculasGrilla().length > 0) {
+      <div class="standard-section">
+        <h2 class="section-title">Cartelera General</h2>
+        <div class="standard-grid">
+          @for (peli of peliculasGrilla(); track peli.id) {
+            <article class="standard-card">
+              @if (peli.imagen_url) {
+                <!-- Clic en la imagen abre horarios -->
+                <img
+                  [src]="peli.imagen_url"
+                  [alt]="peli.nombre"
+                  (click)="abrirModalHorarios(peli, $event)"
+                />
+              }
+              <div class="standard-info">
+                <h4>{{ peli.nombre }}</h4>
+                <span
+                  >{{ peli.duracion_minutos }} min | +{{ peli.clasificacion_edad || 'ATP' }}</span
+                >
+
+                <!-- BOTONES NUEVOS -->
+                <div class="card-actions">
+                  <button class="btn-comprar" (click)="abrirModalHorarios(peli, $event)">
+                    Horarios
+                  </button>
+                  <button class="btn-detalles">Ver detalles</button>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+      </div>
+    }
+
+    @if (peliculasFiltradas().length === 0) {
+      <p class="empty-state">No se encontraron películas con esos filtros.</p>
+    }
+  }
+
+  <!-- MODAL DE SELECCIÓN DE HORARIOS (Centrado) -->
+  @if (peliculaParaHorario()) {
+    <div class="modal-overlay" (click)="cerrarModalHorarios()">
+      <div class="modal-horarios-centered" (click)="$event.stopPropagation()">
+        <header class="mh-header">
+          <div>
+            <span class="mh-badge">SELECCIONAR HORARIOS</span>
+            <h3>{{ peliculaParaHorario()?.nombre }}</h3>
+            <p>{{ sedeActual }}</p>
           </div>
-          <button class="btn-cancel" (click)="cerrarModalSala()">Cerrar vista previa</button>
-        </footer>
+          <button class="btn-close" (click)="cerrarModalHorarios()">✕</button>
+        </header>
+
+        <div class="mh-body">
+          <!-- Selector de Fechas -->
+          <div class="mh-section">
+            <h4>FECHA</h4>
+            <div class="pill-group">
+              @for (fecha of fechasDisponibles; track fecha) {
+                <button
+                  class="mh-pill"
+                  [class.active]="fechaSeleccionada() === fecha"
+                  (click)="seleccionarFecha(fecha)"
+                >
+                  {{ fecha }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Selector de Formato -->
+          <div class="mh-section">
+            <h4>FORMATO</h4>
+            <div class="pill-group">
+              @for (formato of formatosDisponibles; track formato) {
+                <button
+                  class="mh-pill"
+                  [class.active]="formatoSeleccionado() === formato"
+                  (click)="seleccionarFormato(formato)"
+                >
+                  {{ formato }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Selector de Horarios -->
+          <div class="mh-section">
+            <h4>HORARIOS DISPONIBLES</h4>
+            <div class="time-grid">
+              @for (hora of horariosDisponibles; track hora) {
+                <button class="time-btn" (click)="continuarACompra()">
+                  <span class="time">{{ hora }}</span>
+                  <span class="lang">Dob</span>
+                </button>
+              }
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   }

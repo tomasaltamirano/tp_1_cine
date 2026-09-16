@@ -1,27 +1,78 @@
-.navbar {
+.ca-navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  background-color: #111827;
-  color: #f9fafb;
-}
+  background-color: #000000; /* Fondo súper oscuro */
+  border-bottom: 1px solid #1a1a1a;
 
-.brand a {
-  font-size: 1.25rem;
-  font-weight: 700;
-  text-decoration: none;
-  color: #f9fafb;
-}
+  .nav-left {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+  }
 
-.nav-links a {
-  color: #9ca3af;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.2s;
-}
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    color: #ffffff;
 
-.nav-links a:hover,
-.nav-links a.active {
-  color: #ffffff;
+    .logo-icon {
+      background-color: #ffffff;
+      color: #000000;
+      font-weight: 900;
+      font-size: 1.5rem;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      letter-spacing: -1px;
+    }
+
+    .logo-text {
+      font-size: 0.7rem;
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: 1px;
+    }
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+
+    a {
+      color: #888888;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      transition: color 0.2s;
+
+      &:hover,
+      &.active {
+        color: #ffffff;
+      }
+    }
+  }
+
+  .nav-right {
+    .btn-user {
+      background: transparent;
+      border: 1px solid #333333;
+      color: #ffffff;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: #1a1a1a;
+      }
+    }
+  }
 }

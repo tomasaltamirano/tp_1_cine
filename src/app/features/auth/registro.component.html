@@ -1,0 +1,102 @@
+<section class="auth-page">
+  <div class="auth-card ancha">
+    @if (confirmarEmail()) {
+      <h1>¡Revisá tu email!</h1>
+      <p class="sub">
+        Te enviamos un mensaje para confirmar tu cuenta. Cuando lo confirmes, ya podés
+        <a routerLink="/login" [queryParams]="{ redirect }">ingresar</a> y usar tu 20% de descuento.
+      </p>
+    } @else {
+      <h1>Crear cuenta</h1>
+      <p class="promo">🎟️ Registrate y obtené 20% de descuento en tu primera compra.</p>
+
+      <form [formGroup]="form" (ngSubmit)="registrar()" novalidate>
+        <div class="grilla-2">
+          <label class="campo">
+            <span>Nombre</span>
+            <input type="text" formControlName="nombre" autocomplete="given-name" />
+            @if (invalido('nombre')) { <small class="error-campo">Ingresá tu nombre.</small> }
+          </label>
+
+          <label class="campo">
+            <span>Apellido</span>
+            <input type="text" formControlName="apellido" autocomplete="family-name" />
+            @if (invalido('apellido')) { <small class="error-campo">Ingresá tu apellido.</small> }
+          </label>
+        </div>
+
+        <label class="campo">
+          <span>Email</span>
+          <input type="email" formControlName="email" autocomplete="email" />
+          @if (invalido('email')) { <small class="error-campo">Ingresá un email válido.</small> }
+        </label>
+
+        <div class="grilla-2">
+          <label class="campo">
+            <span>Fecha de nacimiento</span>
+            <input type="date" formControlName="fecha_nacimiento" [max]="hoy" />
+            @if (invalido('fecha_nacimiento')) {
+              <small class="error-campo">Ingresá una fecha válida.</small>
+            }
+          </label>
+
+          <label class="campo">
+            <span>Días de vacaciones por año</span>
+            <input type="number" formControlName="dias_vacaciones" min="0" max="365" />
+            @if (invalido('dias_vacaciones')) {
+              <small class="error-campo">Ingresá un número entre 0 y 365.</small>
+            }
+          </label>
+        </div>
+
+        <div class="grilla-2">
+          <label class="campo">
+            <span>Tipo de sangre</span>
+            <select formControlName="tipo_sangre">
+              <option value="" disabled>Elegí una opción</option>
+              @for (t of tiposSangre; track t) { <option [value]="t">{{ t }}</option> }
+            </select>
+            @if (invalido('tipo_sangre')) { <small class="error-campo">Elegí una opción.</small> }
+          </label>
+
+          <label class="campo">
+            <span>Color de ojos</span>
+            <select formControlName="color_ojos">
+              <option value="" disabled>Elegí una opción</option>
+              @for (c of coloresOjos; track c) { <option [value]="c">{{ c }}</option> }
+            </select>
+            @if (invalido('color_ojos')) { <small class="error-campo">Elegí una opción.</small> }
+          </label>
+        </div>
+
+        <div class="grilla-2">
+          <label class="campo">
+            <span>Contraseña</span>
+            <input type="password" formControlName="password" autocomplete="new-password" />
+            @if (invalido('password')) {
+              <small class="error-campo">Mínimo 6 caracteres.</small>
+            }
+          </label>
+
+          <label class="campo">
+            <span>Repetir contraseña</span>
+            <input type="password" formControlName="confirmar" autocomplete="new-password" />
+            @if (form.controls.confirmar.touched && form.errors?.['noCoinciden']) {
+              <small class="error-campo">Las contraseñas no coinciden.</small>
+            }
+          </label>
+        </div>
+
+        @if (error()) { <p class="alert-error">{{ error() }}</p> }
+
+        <button type="submit" class="btn-principal" [disabled]="cargando()">
+          {{ cargando() ? 'Creando cuenta…' : 'Crear cuenta' }}
+        </button>
+      </form>
+
+      <p class="pie">
+        ¿Ya tenés cuenta? <a routerLink="/login" [queryParams]="{ redirect }">Ingresar</a>
+      </p>
+    }
+  </div>
+</section>

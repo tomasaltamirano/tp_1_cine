@@ -1,0 +1,27 @@
+<section class="auth-page">
+  <div class="auth-card">
+    <h1>¿Cómo querés continuar?</h1>
+    <p class="sub">Para sacar tus entradas necesitamos saber quién sos. Elegí la opción que prefieras.</p>
+
+    @if (error()) {
+      <p class="alert-error">{{ error() }}</p>
+    }
+
+    <div class="opciones">
+      <a class="opcion destacada" routerLink="/registro" [queryParams]="{ redirect }">
+        <strong>Crear cuenta</strong>
+        <span>20% de descuento en tu primera compra + puntos en cada compra</span>
+      </a>
+
+      <a class="opcion" routerLink="/login" [queryParams]="{ redirect }">
+        <strong>Ya tengo cuenta</strong>
+        <span>Ingresar con mi email</span>
+      </a>
+
+      <button type="button" class="opcion" (click)="continuarComoInvitado()" [disabled]="cargando()">
+        <strong>Continuar sin cuenta</strong>
+        <span>Comprás como invitado, sin descuentos ni puntos</span>
+      </button>
+    </div>
+  </div>
+</section>

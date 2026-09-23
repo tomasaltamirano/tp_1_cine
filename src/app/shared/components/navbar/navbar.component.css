@@ -57,7 +57,46 @@
   }
 
   .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    .saludo {
+      font-size: 0.85rem;
+      color: #cccccc;
+    }
+
+    .btn-ingresar {
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-decoration: none;
+      text-transform: uppercase;
+      color: #ffffff;
+      border: 1px solid #333333;
+      border-radius: 999px;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: #1a1a1a;
+      }
+    }
+
+    .btn-texto {
+      background: transparent;
+      border: 0;
+      color: #888888;
+      font-size: 0.8rem;
+      cursor: pointer;
+
+      &:hover {
+        color: #ffffff;
+      }
+    }
+
     .btn-user {
+      text-decoration: none;
       background: transparent;
       border: 1px solid #333333;
       color: #ffffff;

@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; // <-- 1. Importación necesaria para [(ngModel)]
 import { PeliculasService } from '../../core/services/peliculas.service';
 import { Pelicula } from '../../core/models/pelicula.model';
+import { DuracionPipe } from '../../shared/pipes/duracion.pipe';
+import { ClasificacionPipe } from '../../shared/pipes/clasificacion.pipe';
 
 @Component({
   selector: 'app-peliculas-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DuracionPipe, ClasificacionPipe],
   templateUrl: './peliculas-list.component.html',
   styleUrl: './peliculas-list.component.css',
 })

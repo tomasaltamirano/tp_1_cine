@@ -1,0 +1,23 @@
+<section class="perfil">
+  <h1>Mi perfil</h1>
+
+  @if (auth.perfil(); as p) {
+    <div class="resumen">
+      <div><span>Puntos</span><strong>{{ p.puntos_fidelidad | number }}</strong></div>
+      <div><span>Crédito</span><strong>{{ p.credito_disponible | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</strong></div>
+    </div>
+
+    <dl>
+      <div><dt>Nombre</dt><dd>{{ p.nombre }} {{ p.apellido }}</dd></div>
+      <div><dt>Email</dt><dd>{{ auth.usuario()?.email }}</dd></div>
+      <div><dt>Fecha de nacimiento</dt><dd>{{ p.fecha_nacimiento | date: 'dd/MM/yyyy' }}</dd></div>
+      <div><dt>Tipo de sangre</dt><dd>{{ p.tipo_sangre }}</dd></div>
+      <div><dt>Color de ojos</dt><dd>{{ p.color_ojos }}</dd></div>
+      <div><dt>Días de vacaciones</dt><dd>{{ p.dias_vacaciones }}</dd></div>
+    </dl>
+  } @else {
+    <p class="vacio">No pudimos cargar tus datos de perfil.</p>
+  }
+
+  <button type="button" class="btn-salir" (click)="salir()">Cerrar sesión</button>
+</section>

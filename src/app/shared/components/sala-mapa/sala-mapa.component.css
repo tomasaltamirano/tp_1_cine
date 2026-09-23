@@ -1,0 +1,136 @@
+:host {
+  display: block;
+  --tam: 26px;
+  --gap: 4px;
+}
+
+.sala {
+  overflow-x: auto;
+  padding: 1rem;
+  background: var(--bg-surface);
+  border-radius: 12px;
+}
+
+.pantalla {
+  width: min(70%, 640px);
+  margin: 0 auto 1.5rem;
+  padding: 0.4rem 0;
+  text-align: center;
+  font-size: 0.7rem;
+  letter-spacing: 6px;
+  color: var(--text-muted);
+  border-top: 3px solid var(--acento-cyan);
+  border-radius: 50% 50% 0 0 / 12px 12px 0 0;
+  background: linear-gradient(to bottom, rgba(0, 188, 212, 0.18), transparent);
+}
+
+.mapa {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  width: max-content;
+  margin: 0 auto;
+}
+
+.fila {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.etiqueta-fila {
+  width: 1.2rem;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+/* Cada bloque ocupa siempre el ancho de 4 / 20 / 4 butacas, así las filas accesibles (2/10/2) quedan centradas */
+.bloque {
+  display: flex;
+  justify-content: center;
+  gap: var(--gap);
+  width: calc(4 * var(--tam) + 3 * var(--gap));
+}
+.bloque.centro {
+  width: calc(20 * var(--tam) + 19 * var(--gap));
+}
+
+/* Estilos de la butaca (las clases las agrega ButacaDirective) */
+.butaca {
+  width: var(--tam);
+  height: var(--tam);
+  padding: 0;
+  border: 0;
+  border-radius: 6px 6px 3px 3px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: #e5e7eb;
+  background: var(--asiento-free);
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    transform 0.15s;
+}
+.butaca:hover:not(:disabled) {
+  background: var(--asiento-free-hover);
+  transform: translateY(-1px);
+}
+.butaca.tipo-vip {
+  background: var(--asiento-vip);
+  color: #1f1300;
+}
+.butaca.tipo-accesible {
+  background: var(--asiento-accessible);
+  color: #022c22;
+}
+.butaca.estado-seleccionada {
+  background: var(--asiento-selected);
+  color: #00252b;
+  outline: 2px solid #fff;
+  outline-offset: 1px;
+}
+.butaca.estado-ocupada {
+  background: var(--asiento-occupied);
+  color: #444;
+  cursor: not-allowed;
+}
+.butaca:disabled:not(.estado-ocupada) {
+  cursor: default;
+}
+
+.leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+  list-style: none;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+.leyenda li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.muestra {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  background: var(--asiento-free);
+}
+.muestra.sel {
+  background: var(--asiento-selected);
+}
+.muestra.ocu {
+  background: var(--asiento-occupied);
+  border: 1px solid #333;
+}
+.muestra.vip {
+  background: var(--asiento-vip);
+}
+.muestra.acc {
+  background: var(--asiento-accessible);
+}

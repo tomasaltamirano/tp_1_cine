@@ -1,0 +1,46 @@
+<section class="auth-page">
+  <div class="auth-card">
+    @if (esAdmin) {
+      <span class="badge">Administración</span>
+      <h1>Panel de administración</h1>
+      <p class="sub">Ingresá con tu cuenta de administrador.</p>
+    } @else {
+      <h1>Ingresar</h1>
+      <p class="sub">Bienvenido de nuevo.</p>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="ingresar()" novalidate>
+      <label class="campo">
+        <span>Email</span>
+        <input type="email" formControlName="email" autocomplete="email" />
+        @if (form.controls.email.touched && form.controls.email.invalid) {
+          <small class="error-campo">Ingresá un email válido.</small>
+        }
+      </label>
+
+      <label class="campo">
+        <span>Contraseña</span>
+        <input type="password" formControlName="password" autocomplete="current-password" />
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <small class="error-campo">Ingresá tu contraseña.</small>
+        }
+      </label>
+
+      @if (error()) {
+        <p class="alert-error">{{ error() }}</p>
+      }
+
+      <button type="submit" class="btn-principal" [disabled]="cargando()">
+        {{ cargando() ? 'Ingresando…' : 'Ingresar' }}
+      </button>
+    </form>
+
+    @if (!esAdmin) {
+      <p class="pie">
+        ¿No tenés cuenta?
+        <a routerLink="/registro" [queryParams]="{ redirect }">Registrate</a>
+        · <a routerLink="/acceso" [queryParams]="{ redirect }">Continuar como invitado</a>
+      </p>
+    }
+  </div>
+</section>

@@ -1,0 +1,38 @@
+<div class="sala">
+  <div class="pantalla">PANTALLA</div>
+
+  <div class="mapa">
+    @for (f of filas(); track f.fila) {
+      <div class="fila">
+        <span class="etiqueta-fila">{{ f.fila }}</span>
+
+        @for (col of f.columnas; track $index) {
+          <div class="bloque" [class.centro]="$index === 1">
+            @for (b of col; track b.id) {
+              <button
+                type="button"
+                [appButaca]="b.tipo"
+                [estado]="estadoDe(b)"
+                [rotulo]="b.fila + b.columna"
+                [disabled]="soloLectura() || estadoDe(b) === 'ocupada'"
+                (click)="alternar.emit(b)"
+              >
+                {{ b.columna }}
+              </button>
+            }
+          </div>
+        }
+
+        <span class="etiqueta-fila">{{ f.fila }}</span>
+      </div>
+    }
+  </div>
+
+  <ul class="leyenda">
+    <li><span class="muestra"></span> Libre</li>
+    <li><span class="muestra sel"></span> Seleccionada</li>
+    <li><span class="muestra ocu"></span> Ocupada</li>
+    <li><span class="muestra vip"></span> VIP</li>
+    <li><span class="muestra acc"></span> Accesible</li>
+  </ul>
+</div>

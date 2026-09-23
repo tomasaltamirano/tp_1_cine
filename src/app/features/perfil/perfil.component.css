@@ -1,0 +1,67 @@
+.perfil {
+  max-width: 560px;
+  margin: 3rem auto;
+  padding: 0 1rem;
+}
+h1 {
+  margin-bottom: 1.5rem;
+}
+.resumen {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.resumen > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem 1.1rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+}
+.resumen span {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+.resumen strong {
+  font-size: 1.4rem;
+  color: var(--acento-cyan);
+}
+dl {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+}
+dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1.1rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+dl > div:last-child {
+  border-bottom: 0;
+}
+dt {
+  color: var(--text-secondary);
+}
+.vacio {
+  color: var(--text-secondary);
+}
+.btn-salir {
+  margin-top: 1.5rem;
+  padding: 0.7rem 1.2rem;
+  font: inherit;
+  color: var(--text-primary);
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.btn-salir:hover {
+  border-color: var(--acento-red);
+}

@@ -65,7 +65,7 @@
               }
               <div class="hero-info">
                 <h3>{{ peli.nombre }}</h3>
-                <p>{{ peli.duracion_minutos }} min | +{{ peli.clasificacion_edad || 'ATP' }}</p>
+                <p>{{ peli.duracion_minutos | duracion }} | {{ peli.clasificacion_edad | clasificacion }}</p>
 
                 <div class="card-actions">
                   <button class="btn-comprar" (click)="abrirModalHorarios(peli, $event)">
@@ -96,7 +96,7 @@
               <div class="standard-info">
                 <h4>{{ peli.nombre }}</h4>
                 <span
-                  >{{ peli.duracion_minutos }} min | +{{ peli.clasificacion_edad || 'ATP' }}</span
+                  >{{ peli.duracion_minutos | duracion }} | {{ peli.clasificacion_edad | clasificacion }}</span
                 >
 
                 <div class="card-actions">

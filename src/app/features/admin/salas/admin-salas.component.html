@@ -1,0 +1,58 @@
+<section class="admin-salas">
+  <header>
+    <h1>Salas</h1>
+    <span class="conteo">{{ salas().length }} salas</span>
+  </header>
+
+  <form [formGroup]="form" (ngSubmit)="crear()" class="nueva-sala" novalidate>
+    <input
+      type="text"
+      formControlName="nombre"
+      placeholder="Nombre de la nueva sala (ej. Sala 1)"
+      aria-label="Nombre de la sala"
+    />
+    <button type="submit" [disabled]="creando()">
+      {{ creando() ? 'Creando…' : '+ Crear sala' }}
+    </button>
+  </form>
+  <p class="ayuda">
+    Cada sala se crea con 20 filas (A–T) en 3 bloques de 4 / 20 / 4 butacas. Las filas J y K son
+    accesibles (2 / 10 / 2) y las filas R, S y T son VIP.
+  </p>
+
+  @if (error()) {
+    <p class="alert-error">{{ error() }}</p>
+  }
+
+  @if (cargando()) {
+    <p class="estado">Cargando salas…</p>
+  } @else if (salas().length === 0) {
+    <p class="estado">Todavía no hay salas. Creá la primera.</p>
+  } @else {
+    <ul class="lista">
+      @for (sala of salas(); track sala.id) {
+        <li class="sala">
+          <div class="cabecera">
+            <div>
+              <strong>{{ sala.nombre }}</strong>
+              <span class="meta">{{ cantidadButacas(sala) }} butacas</span>
+            </div>
+            <div class="acciones">
+              <button type="button" (click)="verMapa(sala)">
+                {{ salaAbierta()?.id === sala.id ? 'Ocultar mapa' : 'Ver mapa' }}
+              </button>
+            </div>
+          </div>
+
+          @if (salaAbierta()?.id === sala.id) {
+            @if (cargandoMapa()) {
+              <p class="estado">Cargando butacas…</p>
+            } @else {
+              <app-sala-mapa [butacas]="butacas()" [soloLectura]="true" />
+            }
+          }
+        </li>
+      }
+    </ul>
+  }
+</section>

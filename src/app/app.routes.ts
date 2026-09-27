@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { registradoGuard, rolGuard, visitanteGuard } from './core/guards/auth.guards';
+import { registradoGuard, rolGuard, sesionGuard, visitanteGuard } from './core/guards/auth.guards';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'peliculas', pathMatch: 'full' },
@@ -7,6 +7,16 @@ export const routes: Routes = [
     path: 'peliculas',
     loadComponent: () =>
       import('./features/peliculas/peliculas-list.component').then((m) => m.PeliculasListComponent),
+  },
+
+  // --- Compra: exige sesión (registrado o invitado) ---
+  {
+    path: 'funcion/:id',
+    canActivate: [sesionGuard],
+    loadComponent: () =>
+      import('./features/compra/seleccion-butacas.component').then(
+        (m) => m.SeleccionButacasComponent,
+      ),
   },
 
   // --- Acceso de clientes ---

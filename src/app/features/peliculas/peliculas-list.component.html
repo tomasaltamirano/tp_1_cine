@@ -130,47 +130,53 @@
         </header>
 
         <div class="mh-body">
-          <div class="mh-section">
-            <h4>FECHA</h4>
-            <div class="pill-group">
-              @for (fecha of fechasDisponibles; track fecha) {
-                <button
-                  class="mh-pill"
-                  [class.active]="fechaSeleccionada() === fecha"
-                  (click)="seleccionarFecha(fecha)"
-                >
-                  {{ fecha }}
-                </button>
-              }
+          @if (cargandoFunciones()) {
+            <p class="mh-estado">Buscando funciones…</p>
+          } @else if (fechasDisponibles().length === 0) {
+            <p class="mh-estado">Por ahora no hay funciones programadas para esta película.</p>
+          } @else {
+            <div class="mh-section">
+              <h4>FECHA</h4>
+              <div class="pill-group">
+                @for (fecha of fechasDisponibles(); track fecha.clave) {
+                  <button
+                    class="mh-pill"
+                    [class.active]="fechaActiva() === fecha.clave"
+                    (click)="seleccionarFecha(fecha.clave)"
+                  >
+                    {{ fecha.etiqueta }}
+                  </button>
+                }
+              </div>
             </div>
-          </div>
 
-          <div class="mh-section">
-            <h4>FORMATO</h4>
-            <div class="pill-group">
-              @for (formato of formatosDisponibles; track formato) {
-                <button
-                  class="mh-pill"
-                  [class.active]="formatoSeleccionado() === formato"
-                  (click)="seleccionarFormato(formato)"
-                >
-                  {{ formato }}
-                </button>
-              }
+            <div class="mh-section">
+              <h4>FORMATO</h4>
+              <div class="pill-group">
+                @for (formato of formatosDisponibles(); track formato.clave) {
+                  <button
+                    class="mh-pill"
+                    [class.active]="formatoActivo() === formato.clave"
+                    (click)="seleccionarFormato(formato.clave)"
+                  >
+                    {{ formato.etiqueta }}
+                  </button>
+                }
+              </div>
             </div>
-          </div>
 
-          <div class="mh-section">
-            <h4>HORARIOS DISPONIBLES</h4>
-            <div class="time-grid">
-              @for (hora of horariosDisponibles; track hora) {
-                <button class="time-btn" (click)="continuarACompra()">
-                  <span class="time">{{ hora }}</span>
-                  <span class="lang">Dob</span>
-                </button>
-              }
+            <div class="mh-section">
+              <h4>HORARIOS DISPONIBLES</h4>
+              <div class="time-grid">
+                @for (h of horariosDisponibles(); track h.funcion.id) {
+                  <button class="time-btn" (click)="irAButacas(h.funcion)">
+                    <span class="time">{{ h.hora }}</span>
+                    <span class="lang">{{ h.funcion.formato }}</span>
+                  </button>
+                }
+              </div>
             </div>
-          </div>
+          }
         </div>
       </div>
     </div>

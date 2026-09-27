@@ -1,0 +1,180 @@
+@if (cargando()) {
+  <div class="estado-pantalla"><div class="spinner"></div><p>Preparando la sala…</p></div>
+} @else if (error()) {
+  <div class="estado-pantalla">
+    <p class="alert-error">{{ error() }}</p>
+    <a routerLink="/peliculas" class="btn-volver">Volver a la cartelera</a>
+  </div>
+} @else if (funcion(); as f) {
+  <section class="pantalla">
+    <!-- ================= IZQUIERDA: película ================= -->
+    <aside class="col col-pelicula">
+      @if (pelicula(); as p) {
+        @if (p.imagen_url) {
+          <img class="poster" [src]="p.imagen_url" [alt]="p.nombre" />
+        } @else {
+          <div class="poster poster-vacio">Sin imagen</div>
+        }
+
+        <h1>{{ p.nombre }}</h1>
+
+        <ul class="chips">
+          <li>{{ p.duracion_minutos | duracion }}</li>
+          <li [class.restringida]="p.clasificacion_edad">{{ p.clasificacion_edad | clasificacion }}</li>
+          <li>{{ f.formato }}</li>
+          <li>{{ f.idioma === 'castellano' ? 'Castellano' : 'Subtitulada' }}</li>
+        </ul>
+
+        <p class="funcion-info">
+          <strong>{{ f.salas.nombre }}</strong>
+          <span class="fecha">{{ f.fecha_hora_inicio | date: 'EEEE d \'de\' MMMM, HH:mm' }} hs</span>
+        </p>
+
+        @if (p.sinopsis) {
+          <p class="sinopsis" [class.abierta]="sinopsisAbierta()">{{ p.sinopsis }}</p>
+          <button type="button" class="link" (click)="sinopsisAbierta.set(!sinopsisAbierta())">
+            {{ sinopsisAbierta() ? 'Ver menos' : 'Ver más' }}
+          </button>
+        }
+      }
+    </aside>
+
+    <!-- ================= CENTRO: butacas ================= -->
+    <main class="col col-butacas">
+      <header class="titulo-centro">
+        <h2>Elegí tus butacas</h2>
+        <span>{{ seleccionadas().size }} de {{ maxButacas }}</span>
+      </header>
+
+      @if (funcionCerrada()) {
+        <p class="banner banner-error">Esta función ya comenzó: no se venden más entradas.</p>
+      } @else if (estadoEdad() === 'bloqueado') {
+        <p class="banner banner-error">
+          Esta película es {{ restriccion() | clasificacion }}. No podés comprar entradas para ella con la edad
+          registrada.
+        </p>
+      } @else if (estadoEdad() === 'declarar') {
+        <div class="banner banner-aviso">
+          <p>
+            Esta película es <strong>{{ restriccion() | clasificacion }}</strong>. Indicá tu fecha de nacimiento
+            para continuar.
+          </p>
+          <input
+            type="date"
+            aria-label="Fecha de nacimiento"
+            [value]="fechaDeclarada()"
+            (input)="setFechaDeclarada($any($event.target).value)"
+          />
+        </div>
+      }
+
+      @if (aviso()) {
+        <p class="banner banner-aviso" role="status">{{ aviso() }}</p>
+      }
+
+      <app-sala-mapa
+        [butacas]="butacas()"
+        [ocupadas]="ocupadas()"
+        [seleccionadas]="seleccionadas()"
+        [soloLectura]="!puedeElegir()"
+        (alternar)="alternar($event)"
+      />
+    </main>
+
+    <!-- ================= DERECHA: ticket ================= -->
+    <aside class="col col-ticket">
+      <div class="ticket">
+        <header class="ticket-cabecera">
+          <h3>Tu compra</h3>
+          <div class="tabs" role="tablist">
+            <button
+              type="button"
+              role="tab"
+              [class.activa]="pestana() === 'entradas'"
+              [attr.aria-selected]="pestana() === 'entradas'"
+              (click)="pestana.set('entradas')"
+            >
+              Entradas ({{ lineasEntrada().length }})
+            </button>
+            <button
+              type="button"
+              role="tab"
+              [class.activa]="pestana() === 'candy'"
+              [attr.aria-selected]="pestana() === 'candy'"
+              (click)="pestana.set('candy')"
+            >
+              🍿 Candy ({{ unidadesCandy() }})
+            </button>
+          </div>
+        </header>
+
+        <div class="ticket-cuerpo">
+          @if (pestana() === 'entradas') {
+            @if (lineasEntrada().length === 0) {
+              <p class="vacio">Tocá las butacas del mapa para armar tu entrada.</p>
+            } @else {
+              <ul class="lineas">
+                @for (l of lineasEntrada(); track l.butaca.id) {
+                  <li>
+                    <div class="linea-desc">
+                      <strong>{{ l.butaca.fila }}{{ l.butaca.columna }}</strong>
+                      @if (l.butaca.tipo === 'vip') { <span class="tag tag-vip">VIP</span> }
+                      @if (l.butaca.tipo === 'accesible') { <span class="tag tag-acc">Accesible</span> }
+                    </div>
+                    <span class="linea-precio">{{ l.precio | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+                    <button type="button" class="quitar" (click)="quitar(l.butaca.id)" aria-label="Quitar butaca">✕</button>
+                  </li>
+                }
+              </ul>
+            }
+
+            @if (restriccion()) {
+              <p class="nota nota-edad">
+                Película {{ restriccion() | clasificacion }}: se debe concurrir con un adulto.
+              </p>
+            }
+            @if (subtotalEntradas() > 0 && lineasEntrada().some(l => l.butaca.tipo === 'vip')) {
+              <p class="nota nota-vip">Tu compra incluye butacas VIP, con precio diferencial.</p>
+            }
+            @if (lineasEntrada().some(l => l.butaca.tipo === 'accesible')) {
+              <p class="nota nota-acc">Las butacas accesibles están reservadas para personas con discapacidad y su acompañante.</p>
+            }
+          } @else {
+            @if (categorias().length === 0) {
+              <p class="vacio">Por ahora no hay productos de candy disponibles.</p>
+            }
+            @for (cat of categorias(); track cat.nombre) {
+              <h4 class="categoria">{{ cat.nombre }}</h4>
+              <ul class="lineas">
+                @for (prod of cat.items; track prod.id) {
+                  <li>
+                    <div class="linea-desc">
+                      <strong>{{ prod.nombre }}</strong>
+                      <span class="sub">{{ prod.precio | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+                    </div>
+                    <div class="stepper">
+                      <button type="button" (click)="cambiarCantidad(prod, -1)" [disabled]="cantidadDe(prod) === 0" aria-label="Menos">−</button>
+                      <span>{{ cantidadDe(prod) }}</span>
+                      <button type="button" (click)="cambiarCantidad(prod, 1)" aria-label="Más">+</button>
+                    </div>
+                  </li>
+                }
+              </ul>
+            }
+          }
+        </div>
+
+        <footer class="ticket-pie">
+          <dl>
+            <div><dt>Entradas</dt><dd>{{ subtotalEntradas() | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</dd></div>
+            <div><dt>Candy</dt><dd>{{ subtotalCandy() | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</dd></div>
+            <div class="total"><dt>Total</dt><dd>{{ total() | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</dd></div>
+          </dl>
+          <button type="button" class="btn-continuar" [disabled]="lineasEntrada().length === 0" (click)="continuar()">
+            Continuar
+          </button>
+        </footer>
+      </div>
+    </aside>
+  </section>
+}

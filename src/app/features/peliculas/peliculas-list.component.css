@@ -419,3 +419,9 @@
     }
   }
 }
+
+.mh-estado {
+  padding: 1.5rem 0;
+  text-align: center;
+  color: #9ca3af;
+}

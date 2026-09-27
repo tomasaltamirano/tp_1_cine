@@ -1,14 +1,23 @@
 :host {
   display: block;
-  --tam: 26px;
-  --gap: 4px;
+  container-type: inline-size; /* permite dimensionar las butacas según el ancho disponible */
+  --gap: 3px;
 }
 
 .sala {
+  /* 28 butacas + etiquetas: se achican para que el mapa entre sin scroll horizontal */
+  --tam: clamp(11px, calc((100cqw - 9rem) / 29), 28px);
   overflow-x: auto;
   padding: 1rem;
   background: var(--bg-surface);
   border-radius: 12px;
+}
+
+/* En pantallas angostas (celular) las butacas se mantienen tocables y el mapa se desplaza en horizontal */
+@container (max-width: 700px) {
+  .sala {
+    --tam: 24px;
+  }
 }
 
 .pantalla {
@@ -35,7 +44,7 @@
 .fila {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.6rem;
 }
 
 .etiqueta-fila {
@@ -64,7 +73,7 @@
   padding: 0;
   border: 0;
   border-radius: 6px 6px 3px 3px;
-  font-size: 0.6rem;
+  font-size: calc(var(--tam) * 0.42);
   font-weight: 600;
   color: #e5e7eb;
   background: var(--asiento-free);
@@ -93,7 +102,8 @@
 }
 .butaca.estado-ocupada {
   background: var(--asiento-occupied);
-  color: #444;
+  color: #4b5563;
+  border: 1px dashed #374151;
   cursor: not-allowed;
 }
 .butaca:disabled:not(.estado-ocupada) {
@@ -126,7 +136,7 @@
 }
 .muestra.ocu {
   background: var(--asiento-occupied);
-  border: 1px solid #333;
+  border: 1px dashed #374151;
 }
 .muestra.vip {
   background: var(--asiento-vip);

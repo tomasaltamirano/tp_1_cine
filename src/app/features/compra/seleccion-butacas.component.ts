@@ -3,6 +3,7 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { CandyService } from '../../core/services/candy.service';
+import { CompraService } from '../../core/services/compra.service';
 import { CambioButaca, FuncionesService } from '../../core/services/funciones.service';
 import { SalasService } from '../../core/services/salas.service';
 import { FuncionDetalle } from '../../core/models/funcion.model';
@@ -37,6 +38,7 @@ export class SeleccionButacasComponent implements OnInit {
   private readonly funcionesService = inject(FuncionesService);
   private readonly salasService = inject(SalasService);
   private readonly candyService = inject(CandyService);
+  private readonly compraService = inject(CompraService);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly auth = inject(AuthService);
 
@@ -241,8 +243,13 @@ export class SeleccionButacasComponent implements OnInit {
   }
 
   protected continuar(): void {
-    // Próximo paso del proyecto: pago, cupones, QR y guardado de la compra.
-    this.aviso.set('El pago y la generación del QR se conectan en el próximo paso.');
+    const f = this.funcion();
+    if (!f || this.lineasEntrada().length === 0) return;
+
+    const carrito = this.compraService.armarCarrito(f, this.lineasEntrada(), this.lineasCandy());
+    void this.router.navigate(['/funcion', f.id, 'pago'], {
+      state: { carrito },
+    });
   }
 
   protected volver(): void {

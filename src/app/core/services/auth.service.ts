@@ -88,6 +88,12 @@ export class AuthService {
     this.perfil.set(null);
   }
 
+  /** Actualiza campos del perfil en memoria (p. ej. tras sumar puntos o usar cupón). */
+  parchearPerfil(parcial: Partial<Perfil>): void {
+    const actual = this.perfil();
+    if (actual) this.perfil.set({ ...actual, ...parcial });
+  }
+
   // --- Internos ---
 
   private async cargarPerfil(user: User | null): Promise<void> {

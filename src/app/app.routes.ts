@@ -26,6 +26,19 @@ export const routes: Routes = [
         (m) => m.SeleccionButacasComponent,
       ),
   },
+  // --- Pago simulado + QR ---
+  {
+    path: 'funcion/:id/pago',
+    canActivate: [sesionGuard],
+    loadComponent: () =>
+      import('./features/compra/pago.component').then((m) => m.PagoComponent),
+  },
+  {
+    path: 'funcion/:id/confirmacion',
+    canActivate: [sesionGuard],
+    loadComponent: () =>
+      import('./features/compra/confirmacion.component').then((m) => m.ConfirmacionComponent),
+  },
 
   // --- Acceso de clientes ---
   {

@@ -1,0 +1,149 @@
+@if (!carrito()) {
+  <div class="estado-pantalla"><div class="spinner"></div><p>Cargando resumen…</p></div>
+} @else if (carrito(); as c) {
+  <section class="pantalla-pago">
+    <header class="cabecera">
+      <button type="button" class="btn-atras" (click)="volver()" aria-label="Volver">←</button>
+      <div>
+        <h1>Confirmar compra</h1>
+        <p class="sub">Revisá el detalle y confirmá el pago simulado</p>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- Resumen función -->
+      <article class="tarjeta">
+        <h2>Función</h2>
+        @if (pelicula(); as p) {
+          <div class="funcion-row">
+            @if (p.imagen_url) {
+              <img class="poster-mini" [src]="p.imagen_url" [alt]="p.nombre" />
+            }
+            <div>
+              <h3>{{ p.nombre }}</h3>
+              <ul class="chips">
+                <li>{{ p.duracion_minutos | duracion }}</li>
+                <li>{{ p.clasificacion_edad | clasificacion }}</li>
+                <li>{{ c.funcion.formato }}</li>
+                <li>{{ c.funcion.idioma === 'castellano' ? 'Castellano' : 'Subtitulada' }}</li>
+              </ul>
+              <p class="meta">
+                {{ c.funcion.salas.nombre }} ·
+                {{ c.funcion.fecha_hora_inicio | date: "EEEE d 'de' MMMM, HH:mm" }} hs
+              </p>
+            </div>
+          </div>
+        }
+      </article>
+
+      <!-- Entradas -->
+      <article class="tarjeta">
+        <h2>Entradas ({{ c.lineasEntrada.length }})</h2>
+        <ul class="lista">
+          @for (l of c.lineasEntrada; track l.butaca.id) {
+            <li>
+              <span>
+                <strong>{{ l.butaca.fila }}{{ l.butaca.columna }}</strong>
+                @if (l.butaca.tipo === 'vip') { <span class="tag tag-vip">VIP</span> }
+                @if (l.butaca.tipo === 'accesible') { <span class="tag tag-acc">Accesible</span> }
+              </span>
+              <span>{{ l.precio | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+            </li>
+          }
+        </ul>
+        <div class="subtotal">
+          <span>Subtotal entradas</span>
+          <strong>{{ c.subtotalEntradas | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</strong>
+        </div>
+      </article>
+
+      <!-- Candy -->
+      @if (c.lineasCandy.length > 0) {
+        <article class="tarjeta">
+          <h2>Candy</h2>
+          <ul class="lista">
+            @for (l of c.lineasCandy; track l.producto.id) {
+              <li>
+                <span>{{ l.cantidad }}× {{ l.producto.nombre }}</span>
+                <span>{{ l.subtotal | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+              </li>
+            }
+          </ul>
+          <div class="subtotal">
+            <span>Subtotal candy</span>
+            <strong>{{ c.subtotalCandy | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</strong>
+          </div>
+        </article>
+      }
+
+      <!-- Beneficios -->
+      <article class="tarjeta beneficios">
+        <h2>Beneficios aplicados</h2>
+        <ul class="lista">
+          @if (c.descuentoMayor > 0) {
+            <li class="ok">
+              <span>Descuento mayores de 50 ({{ descuentoMayorPct }} %)</span>
+              <span>−{{ c.descuentoMayor | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+            </li>
+          } @else if (esMayor()) {
+            <li class="hint">Descuento mayores de 50 disponible en tu perfil.</li>
+          }
+
+          @if (c.descuentoCupon > 0) {
+            <li class="ok">
+              <span>Cupón primera compra</span>
+              <span>−{{ c.descuentoCupon | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+            </li>
+          } @else if (puedeUsarCupon()) {
+            <li class="hint">Cupón de bienvenida de {{ cuponMonto | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }} aplicado automáticamente.</li>
+          }
+
+          @if (c.creditoUsado > 0) {
+            <li class="ok">
+              <span>Crédito a favor</span>
+              <span>−{{ c.creditoUsado | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+            </li>
+          }
+
+          @if (c.descuentoMayor === 0 && c.descuentoCupon === 0 && c.creditoUsado === 0) {
+            <li class="hint">Sin descuentos adicionales en esta compra.</li>
+          }
+        </ul>
+
+        @if (auth.estaRegistrado()) {
+          <p class="puntos">
+            Sumarás <strong>{{ c.puntosGanados }}</strong> puntos de fidelidad
+            (1 punto por cada peso).
+          </p>
+        } @else {
+          <p class="puntos hint">Registrate para acumular puntos y usar el cupón de bienvenida.</p>
+        }
+      </article>
+    </div>
+
+    <footer class="barra-pago">
+      @if (error()) {
+        <p class="alert-error" role="alert">{{ error() }}</p>
+      }
+      <div class="totales">
+        <div>
+          <span class="label">Total a pagar</span>
+          <strong class="monto">{{ c.total | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</strong>
+        </div>
+        <button
+          type="button"
+          class="btn-pagar"
+          [disabled]="procesando()"
+          (click)="confirmarPago()"
+        >
+          @if (procesando()) {
+            Procesando…
+          } @else {
+            Confirmar y pagar
+          }
+        </button>
+      </div>
+      <p class="nota-sim">Simulación de pago · No se cobra dinero real · El QR se genera al confirmar</p>
+    </footer>
+  </section>
+}

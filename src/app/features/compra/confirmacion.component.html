@@ -1,0 +1,72 @@
+@if (!detalle()) {
+  <div class="estado-pantalla"><div class="spinner"></div><p>Generando tu entrada…</p></div>
+} @else if (detalle(); as d) {
+  <section class="pantalla-ok">
+    <div class="exito">
+      <div class="icono" aria-hidden="true">✓</div>
+      <h1>¡Compra confirmada!</h1>
+      <p class="sub">Presentá este QR en la entrada del cine. Incluye entradas y candy.</p>
+    </div>
+
+    <div class="qr-box">
+      <img [src]="qrUrl()" alt="Código QR de la compra" width="220" height="220" />
+      <p class="codigo">{{ d.compra.codigo_qr }}</p>
+      <p class="manual">Código manual: <strong>{{ d.codigoManual }}</strong></p>
+    </div>
+
+    <article class="resumen">
+      @if (pelicula(); as p) {
+        <h2>{{ p.nombre }}</h2>
+      }
+      @if (funcion(); as f) {
+        <p class="meta">
+          {{ f.salas.nombre }} ·
+          {{ f.fecha_hora_inicio | date: "EEEE d 'de' MMMM, HH:mm" }} hs ·
+          {{ f.formato }} ·
+          {{ f.idioma === 'castellano' ? 'Castellano' : 'Subtitulada' }}
+        </p>
+      }
+
+      <ul class="detalle">
+        <li>
+          <span>Butacas</span>
+          <strong>
+            @for (l of d.carrito.lineasEntrada; track l.butaca.id; let last = $last) {
+              {{ l.butaca.fila }}{{ l.butaca.columna }}@if (!last) {, }
+            }
+          </strong>
+        </li>
+        @if (d.carrito.lineasCandy.length > 0) {
+          <li>
+            <span>Candy</span>
+            <strong>
+              @for (l of d.carrito.lineasCandy; track l.producto.id; let last = $last) {
+                {{ l.cantidad }}× {{ l.producto.nombre }}@if (!last) { · }
+              }
+            </strong>
+          </li>
+        }
+        <li>
+          <span>Total pagado</span>
+          <strong>{{ d.compra.total | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</strong>
+        </li>
+        @if (d.compra.puntos_otorgados > 0) {
+          <li>
+            <span>Puntos sumados</span>
+            <strong>+{{ d.compra.puntos_otorgados }}</strong>
+          </li>
+        }
+      </ul>
+
+      <p class="aviso-cancel">
+        Podés cancelar hasta 2 horas antes de la función. El importe se acredita como crédito a favor
+        (sin devolución en efectivo).
+      </p>
+    </article>
+
+    <div class="acciones">
+      <button type="button" class="btn-primario" (click)="irCartelera()">Volver a la cartelera</button>
+      <a routerLink="/perfil" class="btn-sec">Ver mi perfil</a>
+    </div>
+  </section>
+}

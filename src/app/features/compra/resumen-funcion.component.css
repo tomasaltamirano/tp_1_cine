@@ -1,0 +1,172 @@
+:host {
+  display: block;
+}
+.estado-pantalla {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 4rem 1rem;
+  color: var(--text-secondary);
+}
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--border-strong);
+  border-top-color: var(--acento-cyan);
+  border-radius: 50%;
+  animation: giro 0.8s linear infinite;
+}
+@keyframes giro {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.alert-error {
+  padding: 0.65rem 0.85rem;
+  color: #fecaca;
+  background: rgba(229, 9, 20, 0.15);
+  border: 1px solid rgba(229, 9, 20, 0.4);
+  border-radius: 8px;
+}
+.link {
+  color: var(--acento-cyan);
+}
+
+.resumen {
+  display: flex;
+  justify-content: center;
+  padding: 2.5rem 1.25rem;
+}
+.tarjeta {
+  display: flex;
+  gap: 2rem;
+  max-width: 780px;
+  width: 100%;
+  padding: 1.75rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 16px;
+}
+.poster {
+  flex: 0 0 220px;
+  height: 320px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+.poster-vacio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  background: var(--bg-base);
+}
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  min-width: 0;
+}
+h1 {
+  font-size: 1.6rem;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  list-style: none;
+}
+.chips li {
+  padding: 0.2rem 0.6rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+}
+.chips li.restringida {
+  color: #fca5a5;
+  border-color: rgba(229, 9, 20, 0.5);
+}
+.sinopsis {
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+.datos-funcion {
+  display: flex;
+  gap: 2rem;
+  padding: 0.9rem 0;
+  border-top: 1px dashed var(--border-strong);
+  border-bottom: 1px dashed var(--border-strong);
+}
+.datos-funcion dt {
+  font-size: 0.7rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.datos-funcion dd {
+  margin-top: 0.15rem;
+  font-size: 0.9rem;
+  text-transform: capitalize;
+}
+
+.precios {
+  display: flex;
+  gap: 1.5rem;
+}
+.precio {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.precio span {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+.precio strong {
+  font-size: 1.25rem;
+}
+.tag-preventa {
+  align-self: flex-start;
+  padding: 0.05rem 0.4rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #1f1300;
+  background: var(--asiento-vip);
+  border-radius: 4px;
+}
+
+.nota-edad {
+  padding: 0.55rem 0.7rem;
+  font-size: 0.78rem;
+  color: #fecaca;
+  background: rgba(229, 9, 20, 0.12);
+  border-radius: 6px;
+}
+
+.btn-continuar {
+  padding: 0.85rem;
+  font: inherit;
+  font-weight: 700;
+  color: #fff;
+  background: var(--acento-red);
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.volver {
+  align-self: center;
+  font-size: 0.82rem;
+}
+
+@media (max-width: 620px) {
+  .tarjeta {
+    flex-direction: column;
+  }
+  .poster {
+    flex-basis: auto;
+    width: 100%;
+    height: 220px;
+  }
+}

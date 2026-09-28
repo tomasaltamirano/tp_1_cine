@@ -1,0 +1,140 @@
+<app-admin-nav />
+
+<section class="admin-funciones">
+  <header>
+    <h1>Funciones</h1>
+    <span class="conteo">{{ funciones().length }} funciones programadas</span>
+  </header>
+
+  <form [formGroup]="form" (ngSubmit)="crear()" class="nueva-funcion" novalidate>
+    <div class="fila">
+      <label class="campo campo-ancho">
+        <span>Película</span>
+        <select formControlName="pelicula_id">
+          <option value="" disabled>Elegí una película</option>
+          @for (p of peliculas(); track p.id) {
+            <option [value]="p.id">{{ p.nombre }} ({{ p.duracion_minutos | duracion }})</option>
+          }
+        </select>
+      </label>
+
+      <label class="campo">
+        <span>Fecha</span>
+        <input type="date" formControlName="fecha" [min]="hoy" />
+      </label>
+
+      <label class="campo">
+        <span>Hora</span>
+        <input type="time" formControlName="hora" />
+      </label>
+    </div>
+
+    <div class="fila">
+      <label class="campo">
+        <span>Formato</span>
+        <select formControlName="formato">
+          @for (f of formatos; track f) { <option [value]="f">{{ f }}</option> }
+        </select>
+      </label>
+
+      <label class="campo">
+        <span>Idioma</span>
+        <select formControlName="idioma">
+          @for (i of idiomas; track i.valor) { <option [value]="i.valor">{{ i.etiqueta }}</option> }
+        </select>
+      </label>
+
+      <label class="campo">
+        <span>Precio entrada</span>
+        <input type="number" formControlName="precio_base" min="1" step="100" />
+      </label>
+
+      <label class="campo">
+        <span>Precio VIP (opcional)</span>
+        <input type="number" formControlName="precio_vip" min="1" step="100" placeholder="Base x 1,5" />
+      </label>
+    </div>
+
+    <div class="fila fila-preventa">
+      <label class="check">
+        <input type="checkbox" formControlName="es_preventa" />
+        Es preventa
+      </label>
+
+      @if (form.controls.es_preventa.value) {
+        <label class="campo">
+          <span>Precio de preventa</span>
+          <input type="number" formControlName="precio_preventa" min="1" step="100" />
+        </label>
+        <label class="campo">
+          <span>La preventa termina el</span>
+          <input type="datetime-local" formControlName="fecha_fin_preventa" />
+        </label>
+      }
+    </div>
+
+    <p class="ayuda">
+      La sala se asigna sola: se elige la primera sala libre a ese horario, dejando siempre 30 minutos
+      de margen (ya incluidos en la duración + limpieza) con la función anterior y la siguiente.
+    </p>
+
+    <button type="submit" [disabled]="creando()">
+      {{ creando() ? 'Creando…' : '+ Crear función' }}
+    </button>
+  </form>
+
+  @if (error()) {
+    <p class="alert-error">{{ error() }}</p>
+  }
+
+  @if (cargando()) {
+    <p class="estado">Cargando funciones…</p>
+  } @else if (funciones().length === 0) {
+    <p class="estado">Todavía no hay funciones programadas.</p>
+  } @else {
+    <table class="tabla-funciones">
+      <thead>
+        <tr>
+          <th>Película</th>
+          <th>Sala</th>
+          <th>Día y hora</th>
+          <th>Formato</th>
+          <th>Precio</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (f of funciones(); track f.id) {
+          <tr>
+            <td>{{ f.peliculas.nombre }}</td>
+            <td>{{ f.salas.nombre }}</td>
+            <td>{{ f.fecha_hora_inicio | date: 'dd/MM HH:mm' }} hs</td>
+            <td>{{ f.formato }} · {{ f.idioma === 'castellano' ? 'Cast.' : 'Sub.' }}</td>
+            <td>{{ f.precio_base | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</td>
+            <td class="acciones">
+              <button type="button" (click)="verOcupacion(f)">
+                {{ funcionMonitoreada()?.id === f.id ? 'Ocultar mapa' : 'Ver ocupación' }}
+              </button>
+              <button type="button" class="btn-eliminar" (click)="eliminar(f)">Eliminar</button>
+            </td>
+          </tr>
+          @if (funcionMonitoreada()?.id === f.id) {
+            <tr class="fila-monitor">
+              <td colspan="6">
+                @if (cargandoMonitor()) {
+                  <p class="estado">Cargando mapa…</p>
+                } @else {
+                  <p class="monitor-info">
+                    {{ ocupadasMonitor().size }} de {{ butacasMonitor().length }} butacas vendidas. Se actualiza
+                    solo, en el momento en que se confirma una compra.
+                  </p>
+                  <app-sala-mapa [butacas]="butacasMonitor()" [ocupadas]="ocupadasMonitor()" [soloLectura]="true" />
+                }
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  }
+</section>

@@ -7,6 +7,18 @@ export interface CambioButaca {
   butacaId: string;
 }
 
+export interface DatosNuevaFuncion {
+  pelicula_id: string;
+  fecha_hora_inicio: string; // ISO
+  formato: string;
+  idioma: string;
+  precio_base: number;
+  precio_vip: number | null;
+  es_preventa: boolean;
+  precio_preventa: number | null;
+  fecha_fin_preventa: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class FuncionesService {
   private readonly supabase = inject(SupabaseService).client;
@@ -33,6 +45,44 @@ export class FuncionesService {
 
     if (error) throw error;
     return (data as Funcion[]) ?? [];
+  }
+
+  /** Todas las funciones futuras, con su película y sala, para el panel de admin. */
+  async getFuncionesFuturas(): Promise<FuncionDetalle[]> {
+    const { data, error } = await this.supabase
+      .from('funciones')
+      .select('*, peliculas(*), salas(nombre)')
+      .gte('fecha_hora_inicio', new Date().toISOString())
+      .order('fecha_hora_inicio');
+
+    if (error) throw error;
+    return (data as FuncionDetalle[]) ?? [];
+  }
+
+  /**
+   * Crea una función. La sala la asigna la base automáticamente: busca una libre
+   * en ese horario (respetando el margen de 30 min entre funciones) y, si no hay
+   * ninguna, rechaza la operación.
+   */
+  async crearFuncion(datos: DatosNuevaFuncion): Promise<Funcion> {
+    const { data, error } = await this.supabase.rpc('crear_funcion', {
+      p_pelicula_id: datos.pelicula_id,
+      p_fecha_hora_inicio: datos.fecha_hora_inicio,
+      p_formato: datos.formato,
+      p_idioma: datos.idioma,
+      p_precio_base: datos.precio_base,
+      p_precio_vip: datos.precio_vip,
+      p_es_preventa: datos.es_preventa,
+      p_precio_preventa: datos.precio_preventa,
+      p_fecha_fin_preventa: datos.fecha_fin_preventa,
+    });
+    if (error) throw error;
+    return data as Funcion;
+  }
+
+  async eliminarFuncion(id: string): Promise<void> {
+    const { error } = await this.supabase.rpc('eliminar_funcion', { p_funcion_id: id });
+    if (error) throw error;
   }
 
   async getButacasOcupadas(funcionId: string): Promise<Set<string>> {

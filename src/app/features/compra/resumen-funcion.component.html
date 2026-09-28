@@ -1,0 +1,65 @@
+@if (cargando()) {
+  <div class="estado-pantalla"><div class="spinner"></div><p>Cargando la función…</p></div>
+} @else if (error()) {
+  <div class="estado-pantalla">
+    <p class="alert-error">{{ error() }}</p>
+    <a routerLink="/peliculas" class="link">Volver a la cartelera</a>
+  </div>
+} @else if (funcion(); as f) {
+  <section class="resumen">
+    <div class="tarjeta">
+      @if (pelicula()?.imagen_url) {
+        <img class="poster" [src]="pelicula()!.imagen_url" [alt]="pelicula()!.nombre" />
+      } @else {
+        <div class="poster poster-vacio">Sin imagen</div>
+      }
+
+      <div class="info">
+        <h1>{{ pelicula()?.nombre }}</h1>
+
+        <ul class="chips">
+          <li>{{ pelicula()?.duracion_minutos | duracion }}</li>
+          <li [class.restringida]="pelicula()?.clasificacion_edad">
+            {{ pelicula()?.clasificacion_edad | clasificacion }}
+          </li>
+          <li>{{ f.formato }}</li>
+          <li>{{ f.idioma === 'castellano' ? 'Castellano' : 'Subtitulada' }}</li>
+        </ul>
+
+        @if (pelicula()?.sinopsis) {
+          <p class="sinopsis">{{ pelicula()?.sinopsis }}</p>
+        }
+
+        <dl class="datos-funcion">
+          <div><dt>Sala</dt><dd>{{ f.salas.nombre }}</dd></div>
+          <div>
+            <dt>Función</dt>
+            <dd>{{ f.fecha_hora_inicio | date: 'EEEE d \'de\' MMMM, HH:mm' }} hs</dd>
+          </div>
+        </dl>
+
+        <div class="precios">
+          <div class="precio">
+            <span>Entrada general</span>
+            <strong>{{ precioNormal() | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</strong>
+            @if (enPreventa()) { <span class="tag-preventa">Preventa</span> }
+          </div>
+          <div class="precio">
+            <span>Entrada VIP</span>
+            <strong>{{ precioVip() | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</strong>
+          </div>
+        </div>
+
+        @if (pelicula()?.clasificacion_edad) {
+          <p class="nota-edad">
+            Película {{ pelicula()?.clasificacion_edad | clasificacion }}: los menores deben concurrir
+            acompañados de un adulto.
+          </p>
+        }
+
+        <button type="button" class="btn-continuar" (click)="continuar()">Continuar</button>
+        <a routerLink="/peliculas" class="link volver">Elegir otro horario</a>
+      </div>
+    </div>
+  </section>
+}

@@ -1,0 +1,149 @@
+.admin-funciones {
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+header {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.conteo {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.nueva-funcion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1.1rem;
+  margin-bottom: 1.5rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+}
+.fila {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+}
+.fila-preventa {
+  align-items: center;
+}
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 140px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+.campo-ancho {
+  flex: 1;
+  min-width: 220px;
+}
+.campo input,
+.campo select {
+  padding: 0.55rem 0.65rem;
+  font: inherit;
+  color: var(--text-primary);
+  background: var(--bg-base);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+}
+.campo input:focus,
+.campo select:focus {
+  outline: none;
+  border-color: var(--acento-cyan);
+}
+.check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+.ayuda {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.nueva-funcion > button {
+  align-self: flex-start;
+  padding: 0.6rem 1.3rem;
+  font: inherit;
+  font-weight: 700;
+  color: #fff;
+  background: var(--acento-red);
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.nueva-funcion > button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.alert-error {
+  margin-bottom: 1rem;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.85rem;
+  color: #fecaca;
+  background: rgba(229, 9, 20, 0.15);
+  border: 1px solid rgba(229, 9, 20, 0.4);
+  border-radius: 8px;
+}
+.estado {
+  padding: 1rem 0;
+  color: var(--text-secondary);
+}
+
+.tabla-funciones {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.tabla-funciones th {
+  padding: 0.6rem 0.7rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-strong);
+}
+.tabla-funciones td {
+  padding: 0.6rem 0.7rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.acciones {
+  display: flex;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+.acciones button {
+  padding: 0.35rem 0.7rem;
+  font: inherit;
+  font-size: 0.78rem;
+  color: var(--text-primary);
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.acciones button:hover {
+  border-color: var(--acento-cyan);
+}
+.btn-eliminar:hover {
+  color: #fca5a5;
+  border-color: var(--acento-red);
+}
+.fila-monitor td {
+  background: var(--bg-base);
+}
+.monitor-info {
+  margin-bottom: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}

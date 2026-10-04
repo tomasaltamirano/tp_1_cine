@@ -16,7 +16,7 @@ export class AuthService {
   readonly estaRegistrado = computed(() => !!this.usuario() && !this.esAnonimo());
 
   /**
-   * Rol para la UI y los guards. OJO: esto solo decide qué se muestra.
+   * Rol para la UI y los guards.
    * Lo que realmente protege los datos son las políticas RLS en Supabase.
    */
   readonly rol = computed<Rol>(() => {
@@ -39,8 +39,7 @@ export class AuthService {
 
     this.supabase.auth.onAuthStateChange((_evento, sesion) => {
       this.sesion.set(sesion);
-      // Supabase advierte: no hacer llamadas a la API dentro de este callback (puede colgarse).
-      // Se difiere con setTimeout, que es la solución que recomiendan.
+
       setTimeout(async () => {
         await this.cargarPerfil(sesion?.user ?? null);
         this.resolverListo();

@@ -26,7 +26,7 @@
 
   @if (mostrarCategorias()) {
     <div class="genres-dropdown">
-      @for (genero of listaGeneros; track genero) {
+      @for (genero of listaGeneros(); track genero) {
         <button
           class="genre-pill"
           [class.active]="generosActivos().includes(genero)"
@@ -65,13 +65,18 @@
               }
               <div class="hero-info">
                 <h3>{{ peli.nombre }}</h3>
-                <p>{{ peli.duracion_minutos | duracion }} | {{ peli.clasificacion_edad | clasificacion }}</p>
+                <p>
+                  {{ peli.duracion_minutos | duracion }} |
+                  {{ peli.clasificacion_edad | clasificacion }}
+                </p>
 
                 <div class="card-actions">
                   <button class="btn-comprar" (click)="abrirModalHorarios(peli, $event)">
                     Horarios
                   </button>
-                  <button class="btn-detalles" (click)="irADetalle(peli, $event)">Ver detalles</button>
+                  <button class="btn-detalles" (click)="irADetalle(peli, $event)">
+                    Ver detalles
+                  </button>
                 </div>
               </div>
             </article>
@@ -96,14 +101,17 @@
               <div class="standard-info">
                 <h4>{{ peli.nombre }}</h4>
                 <span
-                  >{{ peli.duracion_minutos | duracion }} | {{ peli.clasificacion_edad | clasificacion }}</span
+                  >{{ peli.duracion_minutos | duracion }} |
+                  {{ peli.clasificacion_edad | clasificacion }}</span
                 >
 
                 <div class="card-actions">
                   <button class="btn-comprar" (click)="abrirModalHorarios(peli, $event)">
                     Horarios
                   </button>
-                  <button class="btn-detalles" (click)="irADetalle(peli, $event)">Ver detalles</button>
+                  <button class="btn-detalles" (click)="irADetalle(peli, $event)">
+                    Ver detalles
+                  </button>
                 </div>
               </div>
             </article>

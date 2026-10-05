@@ -1,15 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { SupabaseService } from './supabase.service';
-import { Pelicula } from '../models/pelicula.model';
-
-type Resena = {
-  id?: string;
-  pelicula_id: string;
-  usuario_id?: string | null;
-  estrellas: number | null;
-  comentario: string | null;
-  creado_en?: string;
-};
+import { Genero, Pelicula, Resena } from '../models/pelicula.model';
 
 export type DatosPelicula = {
   nombre: string;
@@ -17,46 +8,64 @@ export type DatosPelicula = {
   imagen_url: string | null;
   duracion_minutos: number;
   clasificacion_edad: number | null;
-  fecha_estreno: string; // YYYY-MM-DD
+  fecha_estreno: string;
   activa: boolean;
+};
+
+/** Fila cruda del select con join de géneros. */
+type PeliculaRow = Pelicula & {
+  pelicula_generos?: { generos: { id: string; nombre: string } | null }[] | null;
 };
 
 @Injectable({ providedIn: 'root' })
 export class PeliculasService {
   private supabase = inject(SupabaseService).client;
 
-  /** Cartelera pública: solo activas. */
+  /** Cartelera pública: activas + géneros. */
   async getPeliculas(): Promise<Pelicula[]> {
     const { data, error } = await this.supabase
       .from('peliculas')
-      .select('*')
+      .select('*, pelicula_generos(generos(id, nombre))')
       .eq('activa', true)
       .order('ventas_historicas', { ascending: false });
+
+    if (error) {
+      console.error('Error al obtener películas:', error);
+      throw error;
+    }
+    return ((data as PeliculaRow[]) || []).map((row) => this.mapPelicula(row));
+  }
+
+  /** Catálogo de géneros para los filtros de cartelera. */
+  async getGeneros(): Promise<Genero[]> {
+    const { data, error } = await this.supabase
+      .from('generos')
+      .select('id, nombre')
+      .order('nombre');
     if (error) throw error;
-    return data || [];
+    return (data as Genero[]) ?? [];
   }
 
   /** Admin: todas (activas e inactivas). */
   async getTodasAdmin(): Promise<Pelicula[]> {
-    const { data, error } = await this.supabase.from('peliculas').select('*').order('nombre');
+    const { data, error } = await this.supabase
+      .from('peliculas')
+      .select('*, pelicula_generos(generos(id, nombre))')
+      .order('nombre');
     if (error) throw error;
-    return (data as Pelicula[]) || [];
+    return ((data as PeliculaRow[]) || []).map((row) => this.mapPelicula(row));
   }
 
   async getPelicula(id: string): Promise<Pelicula | null> {
     const { data, error } = await this.supabase
       .from('peliculas')
-      .select('*')
+      .select('*, pelicula_generos(generos(id, nombre))')
       .eq('id', id)
       .maybeSingle();
     if (error) throw error;
-    return data as Pelicula | null;
+    return data ? this.mapPelicula(data as PeliculaRow) : null;
   }
 
-  /**
-   * Alta/edición vía RPC admin (SECURITY DEFINER + chequeo de rol).
-   * p_id null = crear; con id = actualizar.
-   */
   async guardarAdmin(id: string | null, datos: DatosPelicula): Promise<string> {
     const { data, error } = await this.supabase.rpc('admin_upsert_pelicula', {
       p_id: id,
@@ -82,7 +91,9 @@ export class PeliculasService {
     return (data as Resena[]) ?? [];
   }
 
-  async getPuntuacionPromedio(peliculaId: string): Promise<{ promedio: number; cantidad: number }> {
+  async getPuntuacionPromedio(
+    peliculaId: string,
+  ): Promise<{ promedio: number; cantidad: number }> {
     const resenas = await this.getResenas(peliculaId);
     if (resenas.length === 0) return { promedio: 0, cantidad: 0 };
     const suma = resenas.reduce((s, r) => s + (r.estrellas ?? 0), 0);
@@ -105,8 +116,21 @@ export class PeliculasService {
     };
     if (usuarioId) payload['usuario_id'] = usuarioId;
 
-    const { data, error } = await this.supabase.from('resenas').insert(payload).select().single();
+    const { data, error } = await this.supabase
+      .from('resenas')
+      .insert(payload)
+      .select()
+      .single();
     if (error) throw error;
     return data as Resena;
+  }
+
+  private mapPelicula(row: PeliculaRow): Pelicula {
+    const generos =
+      row.pelicula_generos
+        ?.map((pg) => pg.generos?.nombre)
+        .filter((n): n is string => !!n) ?? [];
+    const { pelicula_generos: _, ...rest } = row;
+    return { ...rest, generos };
   }
 }

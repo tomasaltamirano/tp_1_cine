@@ -20,14 +20,7 @@ const IDIOMAS: { valor: Idioma; etiqueta: string }[] = [
 @Component({
   selector: 'app-admin-funciones',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    CurrencyPipe,
-    DatePipe,
-    DuracionPipe,
-    SalaMapaComponent,
-    AdminNavComponent,
-  ],
+  imports: [ReactiveFormsModule, CurrencyPipe, DatePipe, DuracionPipe, SalaMapaComponent],
   templateUrl: './admin-funciones.component.html',
   styleUrl: './admin-funciones.component.css',
 })
@@ -109,7 +102,10 @@ export class AdminFuncionesComponent implements OnInit {
         precio_vip: v.precio_vip || null,
         es_preventa: v.es_preventa,
         precio_preventa: v.es_preventa ? v.precio_preventa : null,
-        fecha_fin_preventa: v.es_preventa && v.fecha_fin_preventa ? new Date(v.fecha_fin_preventa).toISOString() : null,
+        fecha_fin_preventa:
+          v.es_preventa && v.fecha_fin_preventa
+            ? new Date(v.fecha_fin_preventa).toISOString()
+            : null,
       });
       this.form.patchValue({ fecha: '', hora: '' });
       this.funciones.set(await this.funcionesService.getFuncionesFuturas());

@@ -1,5 +1,8 @@
 @if (cargando()) {
-  <div class="estado"><div class="spinner"></div><p>Cargando película…</p></div>
+  <div class="estado">
+    <div class="spinner"></div>
+    <p>Cargando película…</p>
+  </div>
 } @else if (error()) {
   <div class="estado">
     <p class="alert-error">{{ error() }}</p>
@@ -33,12 +36,19 @@
         <div class="rating" aria-label="Puntuación promedio">
           <div class="estrellas" aria-hidden="true">
             @for (tipo of estrellasPromedio(); track $index) {
-              <span class="estrella" [class.llena]="tipo === 'llena'" [class.media]="tipo === 'media'">★</span>
+              <span
+                class="estrella"
+                [class.llena]="tipo === 'llena'"
+                [class.media]="tipo === 'media'"
+                >★</span
+              >
             }
           </div>
           @if (cantidadResenas() > 0) {
             <strong>{{ promedio() | number: '1.0-1' }}</strong>
-            <span class="cant">({{ cantidadResenas() }} {{ cantidadResenas() === 1 ? 'reseña' : 'reseñas' }})</span>
+            <span class="cant"
+              >({{ cantidadResenas() }} {{ cantidadResenas() === 1 ? 'reseña' : 'reseñas' }})</span
+            >
           } @else {
             <span class="cant">Sin reseñas todavía</span>
           }
@@ -105,14 +115,14 @@
           <li>
             <div class="r-estrellas" aria-label="{{ r.estrellas }} de 5">
               @for (n of [1, 2, 3, 4, 5]; track n) {
-                <span [class.llena]="r.estrellas >= n">★</span>
+                <span [class.llena]="(r.estrellas ?? 0) >= n">★</span>
               }
             </div>
             @if (r.comentario) {
               <p>{{ r.comentario }}</p>
             }
             @if (r.creado_en) {
-              <time>{{ r.creado_en | date: "d/M/yyyy" }}</time>
+              <time>{{ r.creado_en | date: 'd/M/yyyy' }}</time>
             }
           </li>
         } @empty {

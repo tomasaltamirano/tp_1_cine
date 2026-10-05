@@ -9,6 +9,8 @@ export interface Pelicula {
   activa: boolean;
   ventas_historicas?: number;
   creado_en?: string;
+  /** Nombres de género (vienen del join pelicula_generos → generos). */
+  generos?: string[];
 }
 
 export interface Genero {
@@ -21,7 +23,7 @@ export interface Resena {
   id: string;
   pelicula_id: string;
   usuario_id?: string | null;
-  estrellas: number; // 1–5
+  estrellas: number | null; // 1–5
   comentario: string | null;
   creado_en?: string;
 }

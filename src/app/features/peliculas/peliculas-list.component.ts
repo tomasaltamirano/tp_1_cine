@@ -47,7 +47,9 @@ export class PeliculasListComponent implements OnInit {
 
   fechaActiva = computed(() => {
     const lista = this.fechasDisponibles();
-    return lista.find((x) => x.clave === this.fechaSeleccionada())?.clave ?? lista[0]?.clave ?? null;
+    return (
+      lista.find((x) => x.clave === this.fechaSeleccionada())?.clave ?? lista[0]?.clave ?? null
+    );
   });
 
   private funcionesDelDia = computed(() =>
@@ -67,7 +69,9 @@ export class PeliculasListComponent implements OnInit {
 
   formatoActivo = computed(() => {
     const lista = this.formatosDisponibles();
-    return lista.find((x) => x.clave === this.formatoSeleccionado())?.clave ?? lista[0]?.clave ?? null;
+    return (
+      lista.find((x) => x.clave === this.formatoSeleccionado())?.clave ?? lista[0]?.clave ?? null
+    );
   });
 
   horariosDisponibles = computed(() =>
@@ -80,7 +84,14 @@ export class PeliculasListComponent implements OnInit {
   generosActivos = signal<string[]>([]);
   mostrarCategorias = signal<boolean>(false);
 
-  listaGeneros = ['Acción', 'Comedia', 'Terror', 'Ciencia Ficción', 'Animación', 'Drama'];
+  listaGeneros = signal<string[]>([
+    'Acción',
+    'Comedia',
+    'Terror',
+    'Ciencia Ficción',
+    'Animación',
+    'Drama',
+  ]);
 
   toggleCategorias(): void {
     this.mostrarCategorias.update((v) => !v);
@@ -88,10 +99,18 @@ export class PeliculasListComponent implements OnInit {
 
   peliculasFiltradas = computed(() => {
     let filtradas = this.peliculas();
-    const texto = this.terminoBusqueda().toLowerCase();
+    const texto = this.terminoBusqueda().trim().toLowerCase();
+    const generos = this.generosActivos();
 
     if (texto) {
       filtradas = filtradas.filter((p) => p.nombre.toLowerCase().includes(texto));
+    }
+
+    if (generos.length > 0) {
+      filtradas = filtradas.filter((p) => {
+        const dePeli = (p.generos ?? []).map((g) => g.toLowerCase());
+        return generos.some((g) => dePeli.includes(g.toLowerCase()));
+      });
     }
 
     return filtradas;
@@ -104,8 +123,14 @@ export class PeliculasListComponent implements OnInit {
   // --- MÉTODOS
   async ngOnInit(): Promise<void> {
     try {
-      const data = await this.peliculasService.getPeliculas();
+      const [data, generos] = await Promise.all([
+        this.peliculasService.getPeliculas(),
+        this.peliculasService.getGeneros().catch(() => []),
+      ]);
       this.peliculas.set(data);
+      if (generos.length > 0) {
+        this.listaGeneros.set(generos.map((g) => g.nombre));
+      }
     } catch (err: any) {
       this.error.set(err.message || 'Error al obtener películas');
     } finally {
@@ -184,7 +209,9 @@ function etiquetaFecha(iso: string): string {
 }
 
 function horaLocal(iso: string): string {
-  return new Intl.DateTimeFormat('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false }).format(
-    new Date(iso),
-  );
+  return new Intl.DateTimeFormat('es-AR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(new Date(iso));
 }

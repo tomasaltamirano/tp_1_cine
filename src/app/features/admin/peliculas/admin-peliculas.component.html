@@ -1,0 +1,99 @@
+<section class="admin-page">
+  <header>
+    <h1>Películas</h1>
+    <span class="conteo">{{ lista().length }} en catálogo</span>
+  </header>
+
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="form-card" novalidate>
+    <h2>{{ editandoId() ? 'Editar película' : 'Nueva película' }}</h2>
+
+    <div class="fila">
+      <label class="campo campo-ancho">
+        <span>Nombre</span>
+        <input type="text" formControlName="nombre" placeholder="Título" />
+      </label>
+      <label class="campo">
+        <span>Duración (min)</span>
+        <input type="number" formControlName="duracion_minutos" min="1" />
+      </label>
+      <label class="campo">
+        <span>Clasificación</span>
+        <select formControlName="clasificacion_edad">
+          <option value="">ATP</option>
+          <option value="13">+13</option>
+          <option value="18">+18</option>
+        </select>
+      </label>
+      <label class="campo">
+        <span>Fecha de estreno</span>
+        <input type="date" formControlName="fecha_estreno" />
+      </label>
+    </div>
+
+    <div class="fila">
+      <label class="campo campo-ancho">
+        <span>URL de imagen</span>
+        <input type="url" formControlName="imagen_url" placeholder="https://..." />
+      </label>
+      <label class="check">
+        <input type="checkbox" formControlName="activa" />
+        Visible en cartelera
+      </label>
+    </div>
+
+    <label class="campo campo-ancho">
+      <span>Sinopsis</span>
+      <textarea formControlName="sinopsis" rows="3" placeholder="Resumen corto"></textarea>
+    </label>
+
+    <div class="acciones-form">
+      <button type="submit" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando…' : editandoId() ? 'Guardar cambios' : '+ Crear película' }}
+      </button>
+      @if (editandoId()) {
+        <button type="button" class="btn-sec" (click)="cancelarEdicion()">Cancelar</button>
+      }
+    </div>
+    <p class="ayuda">
+      Solo las películas marcadas como visibles aparecen en la cartelera pública. Requiere RPC
+      <code>admin_upsert_pelicula</code> (script sql/minimo-entregable.sql).
+    </p>
+  </form>
+
+  @if (error()) {
+    <p class="alert-error">{{ error() }}</p>
+  }
+
+  @if (cargando()) {
+    <p class="estado">Cargando…</p>
+  } @else if (lista().length === 0) {
+    <p class="estado">Todavía no hay películas. Creá la primera.</p>
+  } @else {
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Duración</th>
+          <th>Clasif.</th>
+          <th>Estreno</th>
+          <th>Cartelera</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (p of lista(); track p.id) {
+          <tr [class.inactiva]="!p.activa">
+            <td>{{ p.nombre }}</td>
+            <td>{{ p.duracion_minutos | duracion }}</td>
+            <td>{{ p.clasificacion_edad | clasificacion }}</td>
+            <td>{{ p.fecha_estreno | date: 'dd/MM/yyyy' }}</td>
+            <td>{{ p.activa ? 'Sí' : 'No' }}</td>
+            <td>
+              <button type="button" class="btn-link" (click)="editar(p)">Editar</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>

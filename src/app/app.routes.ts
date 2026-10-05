@@ -8,6 +8,13 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/peliculas/peliculas-list.component').then((m) => m.PeliculasListComponent),
   },
+  {
+    path: 'peliculas/:id',
+    loadComponent: () =>
+      import('./features/peliculas/pelicula-detalle.component').then(
+        (m) => m.PeliculaDetalleComponent,
+      ),
+  },
 
   // --- Resumen de la función: público, no exige cuenta ---
   {
@@ -74,6 +81,8 @@ export const routes: Routes = [
   {
     path: 'admin',
     canActivate: [rolGuard('admin')],
+    loadComponent: () =>
+      import('./features/admin/admin-shell.component').then((m) => m.AdminShellComponent),
     children: [
       { path: '', redirectTo: 'salas', pathMatch: 'full' },
       {
@@ -88,6 +97,20 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/admin/funciones/admin-funciones.component').then(
             (m) => m.AdminFuncionesComponent,
+          ),
+      },
+      {
+        path: 'peliculas',
+        loadComponent: () =>
+          import('./features/admin/peliculas/admin-peliculas.component').then(
+            (m) => m.AdminPeliculasComponent,
+          ),
+      },
+      {
+        path: 'candy',
+        loadComponent: () =>
+          import('./features/admin/candy/admin-candy.component').then(
+            (m) => m.AdminCandyComponent,
           ),
       },
     ],

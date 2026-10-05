@@ -156,6 +156,12 @@ export class PeliculasListComponent implements OnInit {
     this.cerrarModalHorarios();
     void this.router.navigate(['/funcion', funcion.id]);
   }
+
+  /** Vista de detalle de la película (sinopsis, estrellas, reseñas). */
+  irADetalle(peli: Pelicula, event: Event): void {
+    event.stopPropagation();
+    void this.router.navigate(['/peliculas', peli.id]);
+  }
 }
 
 // --- Helpers de fecha (hora local del navegador) ---

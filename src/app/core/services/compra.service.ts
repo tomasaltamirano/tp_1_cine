@@ -9,12 +9,10 @@ import {
   LineaEntrada,
 } from '../models/compra.model';
 import { FuncionDetalle } from '../models/funcion.model';
-import { Butaca } from '../models/sala.model';
-import { ProductoCandy } from '../models/candy.model';
 import { calcularEdad } from '../utils/edad';
 
-/** Cupón de bienvenida: descuento fijo configurable (ARS). */
-export const CUPON_BIENVENIDA_MONTO = 2000;
+/** Cupón de bienvenida: porcentaje configurable (enunciado: 20 %). */
+export const CUPON_BIENVENIDA_PCT = 0.2;
 
 /** Descuento para mayores de 50 años (10 %). */
 export const DESCUENTO_MAYOR_PCT = 0.1;
@@ -24,7 +22,6 @@ export class CompraService {
   private readonly supabase = inject(SupabaseService).client;
   private readonly auth = inject(AuthService);
 
-  /** Última compra confirmada (para la pantalla de QR sin depender solo de la URL). */
   private ultima: CompraDetalle | null = null;
 
   getUltima(): CompraDetalle | null {
@@ -32,10 +29,10 @@ export class CompraService {
   }
 
   /**
-   * Arma el carrito aplicando reglas de negocio:
-   * - descuento 10 % si el usuario tiene ≥ 50 años
-   * - cupón de bienvenida si está registrado y aún no lo usó
-   * - crédito disponible de la cuenta (hasta el total restante)
+   * Arma el carrito:
+   * - 10 % si edad ≥ 50
+   * - cupón de bienvenida 20 % si registrado y no usado
+   * - crédito a favor
    * - 1 punto por cada peso del total final
    */
   armarCarrito(
@@ -59,7 +56,7 @@ export class CompraService {
 
     let descuentoCupon = 0;
     if (perfil && !perfil.cupon_bienvenida_usado && this.auth.estaRegistrado()) {
-      descuentoCupon = Math.min(CUPON_BIENVENIDA_MONTO, base);
+      descuentoCupon = Math.round(base * CUPON_BIENVENIDA_PCT);
       base -= descuentoCupon;
     }
 
@@ -70,7 +67,7 @@ export class CompraService {
     }
 
     const total = Math.max(0, base);
-    const puntosGanados = Math.floor(total); // 1 punto por peso
+    const puntosGanados = Math.floor(total);
 
     return {
       funcionId: funcion.id,
@@ -88,64 +85,89 @@ export class CompraService {
   }
 
   /**
-   * Confirma la compra:
-   * 1. Intenta ocupar las butacas en la base (RPC o insert).
-   * 2. Genera código QR único.
-   * 3. Guarda la compra si hay tabla; si no, simula en memoria.
-   * 4. Actualiza puntos / cupón / crédito del perfil.
+   * Confirma la compra de forma durable:
+   * 1. RPC registrar_compra (compra + butacas ocupadas atómico)
+   * 2. Fallback: ocupar_butacas + insert compras / simulación local
+   * 3. Beneficios de perfil (puntos, cupón, crédito)
    */
   async confirmar(carrito: CarritoCompra): Promise<CompraDetalle> {
     const butacaIds = carrito.lineasEntrada.map((l) => l.butaca.id);
     const userId = this.auth.usuario()?.id ?? null;
-
-    // 1. Ocupar butacas (si falla por carrera, el usuario elige de nuevo)
-    await this.ocuparButacas(carrito.funcionId, butacaIds);
-
     const codigoQr = this.generarCodigoQr();
     const codigoManual = codigoQr.slice(-8).toUpperCase();
 
+    const detalleJson = {
+      entradas: carrito.lineasEntrada.map((l) => ({
+        butaca_id: l.butaca.id,
+        fila: l.butaca.fila,
+        columna: l.butaca.columna,
+        tipo: l.butaca.tipo,
+        precio: l.precio,
+      })),
+      candy: carrito.lineasCandy.map((l) => ({
+        producto_id: l.producto.id,
+        nombre: l.producto.nombre,
+        cantidad: l.cantidad,
+        subtotal: l.subtotal,
+      })),
+      descuentos: {
+        mayor: carrito.descuentoMayor,
+        cupon: carrito.descuentoCupon,
+        credito: carrito.creditoUsado,
+      },
+    };
+
     let compra: Compra;
 
-    try {
-      const { data, error } = await this.supabase
-        .from('compras')
-        .insert({
-          codigo_qr: codigoQr,
-          usuario_id: userId,
-          funcion_id: carrito.funcionId,
-          total: carrito.total,
-          puntos_otorgados: carrito.puntosGanados,
-          estado: 'activa',
-          detalle: {
-            entradas: carrito.lineasEntrada.map((l) => ({
-              butaca_id: l.butaca.id,
-              fila: l.butaca.fila,
-              columna: l.butaca.columna,
-              tipo: l.butaca.tipo,
-              precio: l.precio,
-            })),
-            candy: carrito.lineasCandy.map((l) => ({
-              producto_id: l.producto.id,
-              nombre: l.producto.nombre,
-              cantidad: l.cantidad,
-              subtotal: l.subtotal,
-            })),
-            descuentos: {
-              mayor: carrito.descuentoMayor,
-              cupon: carrito.descuentoCupon,
-              credito: carrito.creditoUsado,
-            },
-          },
-        })
-        .select()
-        .single();
+    // Preferido: un solo RPC atómico
+    const registrado = await this.registrarCompraRpc(
+      carrito,
+      butacaIds,
+      codigoQr,
+      userId,
+      detalleJson,
+    );
 
-      if (error) throw error;
-      compra = data as Compra;
-    } catch {
-      // Tabla aún no existe o RLS: simulación local para poder avanzar el flujo.
-      compra = {
-        id: crypto.randomUUID(),
+    if (registrado) {
+      compra = registrado;
+    } else {
+      // Fallback legacy: ocupar y luego intentar insert
+      await this.ocuparButacas(carrito.funcionId, butacaIds);
+      compra = await this.insertarCompraOSimular(
+        carrito,
+        codigoQr,
+        userId,
+        detalleJson,
+      );
+    }
+
+    await this.aplicarBeneficios(carrito);
+
+    const detalle: CompraDetalle = { compra, carrito, codigoManual };
+    this.ultima = detalle;
+    return detalle;
+  }
+
+  private async registrarCompraRpc(
+    carrito: CarritoCompra,
+    butacaIds: string[],
+    codigoQr: string,
+    userId: string | null,
+    detalle: Record<string, unknown>,
+  ): Promise<Compra | null> {
+    const { data, error } = await this.supabase.rpc('registrar_compra', {
+      p_funcion_id: carrito.funcionId,
+      p_butaca_ids: butacaIds,
+      p_codigo_qr: codigoQr,
+      p_usuario_id: userId,
+      p_total: carrito.total,
+      p_puntos: carrito.puntosGanados,
+      p_detalle: detalle,
+    });
+
+    if (!error && data) {
+      return {
+        id: data as string,
         codigo_qr: codigoQr,
         usuario_id: userId,
         funcion_id: carrito.funcionId,
@@ -156,60 +178,112 @@ export class CompraService {
       };
     }
 
-    // Actualizar perfil (puntos, cupón, crédito) — best effort
-    await this.aplicarBeneficios(carrito);
+    if (
+      error &&
+      (error.code === '23505' || (error.message ?? '').includes('BUTACA_OCUPADA'))
+    ) {
+      throw new Error(
+        'Alguna de las butacas elegidas acaba de ser ocupada. Volvé al mapa y elegí otras.',
+      );
+    }
 
-    // Marcar butacas en butacas_ocupadas si el insert de compras no lo hizo vía trigger
-    await this.asegurarOcupacion(carrito.funcionId, butacaIds, compra.id);
+    // RPC no existe todavía → el caller usa fallback
+    if (
+      error &&
+      (error.code === 'PGRST202' ||
+        (error.message ?? '').toLowerCase().includes('could not find the function'))
+    ) {
+      return null;
+    }
 
-    const detalle: CompraDetalle = { compra, carrito, codigoManual };
-    this.ultima = detalle;
-    return detalle;
+    if (error) {
+      console.warn('registrar_compra falló, se intenta fallback:', error.message);
+      return null;
+    }
+    return null;
+  }
+
+  private async insertarCompraOSimular(
+    carrito: CarritoCompra,
+    codigoQr: string,
+    userId: string | null,
+    detalle: Record<string, unknown>,
+  ): Promise<Compra> {
+    try {
+      const { data, error } = await this.supabase
+        .from('compras')
+        .insert({
+          codigo_qr: codigoQr,
+          usuario_id: userId,
+          funcion_id: carrito.funcionId,
+          total: carrito.total,
+          puntos_otorgados: carrito.puntosGanados,
+          estado: 'activa',
+          detalle,
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      return data as Compra;
+    } catch (e) {
+      console.warn('Insert compras no disponible (RLS/tabla). Compra local:', e);
+      return {
+        id: crypto.randomUUID(),
+        codigo_qr: codigoQr,
+        usuario_id: userId,
+        funcion_id: carrito.funcionId,
+        total: carrito.total,
+        puntos_otorgados: carrito.puntosGanados,
+        estado: 'activa',
+        creado_en: new Date().toISOString(),
+      };
+    }
   }
 
   private async ocuparButacas(funcionId: string, butacaIds: string[]): Promise<void> {
-    // Intento con RPC si existe
-    try {
-      const { error } = await this.supabase.rpc('ocupar_butacas', {
-        p_funcion_id: funcionId,
-        p_butaca_ids: butacaIds,
-      });
-      if (!error) return;
-    } catch {
-      /* seguir con insert directo */
+    const { error: rpcError } = await this.supabase.rpc('ocupar_butacas', {
+      p_funcion_id: funcionId,
+      p_butaca_ids: butacaIds,
+    });
+
+    if (!rpcError) return;
+
+    if (
+      rpcError.code === '23505' ||
+      (rpcError.message ?? '').includes('BUTACA_OCUPADA') ||
+      (rpcError.message ?? '').toLowerCase().includes('unique')
+    ) {
+      throw new Error(
+        'Alguna de las butacas elegidas acaba de ser ocupada. Volvé al mapa y elegí otras.',
+      );
+    }
+
+    const rpcNoExiste =
+      rpcError.code === 'PGRST202' ||
+      (rpcError.message ?? '').toLowerCase().includes('could not find the function');
+
+    if (!rpcNoExiste) {
+      throw new Error(
+        rpcError.message ||
+          'No se pudieron reservar las butacas. Ejecutá sql/ocupar-butacas.sql y sql/minimo-entregable.sql.',
+      );
     }
 
     const filas = butacaIds.map((butaca_id) => ({ funcion_id: funcionId, butaca_id }));
     const { error } = await this.supabase.from('butacas_ocupadas').insert(filas);
-    if (error) {
-      // Código de unique violation → alguien se adelantó
-      if (error.code === '23505') {
-        throw new Error(
-          'Alguna de las butacas elegidas acaba de ser ocupada. Volvé al mapa y elegí otras.',
-        );
-      }
-      // Si la tabla no permite insert desde el cliente, seguimos (simulación)
-      console.warn('No se pudo marcar ocupación en base:', error.message);
-    }
-  }
+    if (!error) return;
 
-  private async asegurarOcupacion(
-    funcionId: string,
-    butacaIds: string[],
-    compraId: string,
-  ): Promise<void> {
-    try {
-      await this.supabase.from('butacas_ocupadas').upsert(
-        butacaIds.map((butaca_id) => ({
-          funcion_id: funcionId,
-          butaca_id,
-          compra_id: compraId,
-        })),
-        { onConflict: 'funcion_id,butaca_id', ignoreDuplicates: true },
+    if (error.code === '23505') {
+      throw new Error(
+        'Alguna de las butacas elegidas acaba de ser ocupada. Volvé al mapa y elegí otras.',
       );
-    } catch {
-      /* ignorar */
     }
+    if (error.code === '42501' || (error.message ?? '').toLowerCase().includes('row-level security')) {
+      throw new Error(
+        'No se pudieron guardar las butacas (RLS). Ejecutá sql/ocupar-butacas.sql en Supabase.',
+      );
+    }
+    throw new Error(error.message || 'No se pudieron reservar las butacas.');
   }
 
   private async aplicarBeneficios(carrito: CarritoCompra): Promise<void> {
@@ -243,7 +317,6 @@ export class CompraService {
     }
   }
 
-  /** Código único legible + sufijo aleatorio (para el QR). */
   private generarCodigoQr(): string {
     const ts = Date.now().toString(36).toUpperCase();
     const rnd = crypto.randomUUID().replace(/-/g, '').slice(0, 10).toUpperCase();

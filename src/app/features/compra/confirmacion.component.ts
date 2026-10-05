@@ -3,12 +3,11 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CompraService } from '../../core/services/compra.service';
 import { CompraDetalle } from '../../core/models/compra.model';
-import { DuracionPipe } from '../../shared/pipes/duracion.pipe';
 
 @Component({
   selector: 'app-confirmacion',
   standalone: true,
-  imports: [RouterLink, CurrencyPipe, DatePipe, DuracionPipe],
+  imports: [RouterLink, CurrencyPipe, DatePipe],
   templateUrl: './confirmacion.component.html',
   styleUrl: './confirmacion.component.css',
 })

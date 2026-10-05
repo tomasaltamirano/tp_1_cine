@@ -3,12 +3,11 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SalasService } from '../../../core/services/salas.service';
 import { Butaca, Sala } from '../../../core/models/sala.model';
 import { SalaMapaComponent } from '../../../shared/components/sala-mapa/sala-mapa.component';
-import { AdminNavComponent } from '../shared/admin-nav.component';
 
 @Component({
   selector: 'app-admin-salas',
   standalone: true,
-  imports: [ReactiveFormsModule, SalaMapaComponent, AdminNavComponent],
+  imports: [ReactiveFormsModule, SalaMapaComponent],
   templateUrl: './admin-salas.component.html',
   styleUrl: './admin-salas.component.css',
 })

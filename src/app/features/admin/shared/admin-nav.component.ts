@@ -9,13 +9,16 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
     <nav class="admin-nav">
       <a routerLink="/admin/salas" routerLinkActive="activo">Salas</a>
       <a routerLink="/admin/funciones" routerLinkActive="activo">Funciones</a>
+      <a routerLink="/admin/peliculas" routerLinkActive="activo">Películas</a>
+      <a routerLink="/admin/candy" routerLinkActive="activo">Candy</a>
     </nav>
   `,
   styles: [
     `
       .admin-nav {
         display: flex;
-        gap: 1.5rem;
+        flex-wrap: wrap;
+        gap: 1.25rem;
         max-width: 1100px;
         margin: 1.5rem auto 0;
         padding: 0 1rem;

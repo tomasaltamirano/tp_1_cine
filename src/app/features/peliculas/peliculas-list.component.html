@@ -58,7 +58,7 @@
                 <img
                   [src]="peli.imagen_url"
                   [alt]="peli.nombre"
-                  (click)="abrirModalHorarios(peli, $event)"
+                  (click)="irADetalle(peli, $event)"
                 />
               } @else {
                 <div class="poster-placeholder">Sin Imagen</div>
@@ -71,7 +71,7 @@
                   <button class="btn-comprar" (click)="abrirModalHorarios(peli, $event)">
                     Horarios
                   </button>
-                  <button class="btn-detalles">Ver detalles</button>
+                  <button class="btn-detalles" (click)="irADetalle(peli, $event)">Ver detalles</button>
                 </div>
               </div>
             </article>
@@ -90,7 +90,7 @@
                 <img
                   [src]="peli.imagen_url"
                   [alt]="peli.nombre"
-                  (click)="abrirModalHorarios(peli, $event)"
+                  (click)="irADetalle(peli, $event)"
                 />
               }
               <div class="standard-info">
@@ -103,7 +103,7 @@
                   <button class="btn-comprar" (click)="abrirModalHorarios(peli, $event)">
                     Horarios
                   </button>
-                  <button class="btn-detalles">Ver detalles</button>
+                  <button class="btn-detalles" (click)="irADetalle(peli, $event)">Ver detalles</button>
                 </div>
               </div>
             </article>

@@ -1,0 +1,188 @@
+@if (cargando()) {
+  <div class="estado"><div class="spinner"></div><p>Cargando película…</p></div>
+} @else if (error()) {
+  <div class="estado">
+    <p class="alert-error">{{ error() }}</p>
+    <a routerLink="/peliculas" class="link">Volver a la cartelera</a>
+  </div>
+} @else if (pelicula(); as p) {
+  <section class="detalle">
+    <a routerLink="/peliculas" class="volver">← Cartelera</a>
+
+    <div class="hero">
+      <div class="poster-wrap">
+        @if (p.imagen_url) {
+          <img class="poster" [src]="p.imagen_url" [alt]="p.nombre" />
+        } @else {
+          <div class="poster poster-vacio">Sin imagen</div>
+        }
+      </div>
+
+      <div class="info">
+        <h1>{{ p.nombre }}</h1>
+
+        <ul class="chips">
+          <li>{{ p.duracion_minutos | duracion }}</li>
+          <li>{{ p.clasificacion_edad | clasificacion }}</li>
+          @if (p.fecha_estreno) {
+            <li>Estreno {{ p.fecha_estreno | date: 'yyyy' }}</li>
+          }
+        </ul>
+
+        <!-- Puntuación promedio (visible antes de comprar) -->
+        <div class="rating" aria-label="Puntuación promedio">
+          <div class="estrellas" aria-hidden="true">
+            @for (tipo of estrellasPromedio(); track $index) {
+              <span class="estrella" [class.llena]="tipo === 'llena'" [class.media]="tipo === 'media'">★</span>
+            }
+          </div>
+          @if (cantidadResenas() > 0) {
+            <strong>{{ promedio() | number: '1.0-1' }}</strong>
+            <span class="cant">({{ cantidadResenas() }} {{ cantidadResenas() === 1 ? 'reseña' : 'reseñas' }})</span>
+          } @else {
+            <span class="cant">Sin reseñas todavía</span>
+          }
+        </div>
+
+        @if (p.sinopsis) {
+          <p class="sinopsis">{{ p.sinopsis }}</p>
+        }
+
+        <div class="acciones">
+          <button type="button" class="btn-primario" (click)="abrirHorarios()">Ver horarios</button>
+          <a routerLink="/peliculas" class="btn-sec">Volver</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reseñas -->
+    <section class="bloque-resenas">
+      <h2>Reseñas y puntuación</h2>
+
+      <div class="form-resena">
+        <h3>Tu opinión</h3>
+        <div class="selector-estrellas">
+          @for (n of [1, 2, 3, 4, 5]; track n) {
+            <button
+              type="button"
+              class="estrella-btn"
+              [class.activa]="misEstrellas() >= n"
+              (click)="setEstrellas(n)"
+              [attr.aria-label]="n + ' estrellas'"
+            >
+              ★
+            </button>
+          }
+        </div>
+        <textarea
+          rows="3"
+          maxlength="280"
+          placeholder="Comentario corto (opcional, máx. 280 caracteres)"
+          [ngModel]="miComentario()"
+          (ngModelChange)="miComentario.set($event)"
+        ></textarea>
+        @if (errorResena()) {
+          <p class="alert-error">{{ errorResena() }}</p>
+        }
+        @if (okResena()) {
+          <p class="alert-ok">¡Gracias! Tu reseña se publicó.</p>
+        }
+        <button
+          type="button"
+          class="btn-primario btn-sm"
+          [disabled]="enviandoResena()"
+          (click)="enviarResena()"
+        >
+          {{ enviandoResena() ? 'Enviando…' : 'Publicar reseña' }}
+        </button>
+        @if (!auth.estaRegistrado()) {
+          <p class="hint">Necesitás una cuenta registrada para dejar reseñas.</p>
+        }
+      </div>
+
+      <ul class="lista-resenas">
+        @for (r of resenas(); track r.id) {
+          <li>
+            <div class="r-estrellas" aria-label="{{ r.estrellas }} de 5">
+              @for (n of [1, 2, 3, 4, 5]; track n) {
+                <span [class.llena]="r.estrellas >= n">★</span>
+              }
+            </div>
+            @if (r.comentario) {
+              <p>{{ r.comentario }}</p>
+            }
+            @if (r.creado_en) {
+              <time>{{ r.creado_en | date: "d/M/yyyy" }}</time>
+            }
+          </li>
+        } @empty {
+          <li class="vacio">Todavía no hay comentarios. Sé el primero en opinar.</li>
+        }
+      </ul>
+    </section>
+  </section>
+
+  <!-- Modal horarios -->
+  @if (modalHorarios()) {
+    <div class="modal-overlay" (click)="cerrarHorarios()">
+      <div class="modal-horarios" (click)="$event.stopPropagation()">
+        <header class="mh-header">
+          <div>
+            <span class="mh-badge">SELECCIONAR HORARIO</span>
+            <h3>{{ p.nombre }}</h3>
+          </div>
+          <button type="button" class="btn-close" (click)="cerrarHorarios()">✕</button>
+        </header>
+        <div class="mh-body">
+          @if (cargandoFunciones()) {
+            <p class="mh-estado">Buscando funciones…</p>
+          } @else if (fechasDisponibles().length === 0) {
+            <p class="mh-estado">No hay funciones programadas por ahora.</p>
+          } @else {
+            <div class="mh-section">
+              <h4>FECHA</h4>
+              <div class="pill-group">
+                @for (fecha of fechasDisponibles(); track fecha.clave) {
+                  <button
+                    type="button"
+                    class="mh-pill"
+                    [class.active]="fechaActiva() === fecha.clave"
+                    (click)="seleccionarFecha(fecha.clave)"
+                  >
+                    {{ fecha.etiqueta }}
+                  </button>
+                }
+              </div>
+            </div>
+            <div class="mh-section">
+              <h4>FORMATO</h4>
+              <div class="pill-group">
+                @for (formato of formatosDisponibles(); track formato.clave) {
+                  <button
+                    type="button"
+                    class="mh-pill"
+                    [class.active]="formatoActivo() === formato.clave"
+                    (click)="seleccionarFormato(formato.clave)"
+                  >
+                    {{ formato.etiqueta }}
+                  </button>
+                }
+              </div>
+            </div>
+            <div class="mh-section">
+              <h4>HORARIOS</h4>
+              <div class="time-grid">
+                @for (h of horariosDisponibles(); track h.funcion.id) {
+                  <button type="button" class="time-btn" (click)="irAFuncion(h.funcion)">
+                    <span class="time">{{ h.hora }}</span>
+                    <span class="lang">{{ h.funcion.formato }}</span>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+}

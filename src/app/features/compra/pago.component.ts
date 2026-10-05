@@ -2,7 +2,11 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
-import { CompraService, CUPON_BIENVENIDA_MONTO, DESCUENTO_MAYOR_PCT } from '../../core/services/compra.service';
+import {
+  CompraService,
+  CUPON_BIENVENIDA_PCT,
+  DESCUENTO_MAYOR_PCT,
+} from '../../core/services/compra.service';
 import { CarritoCompra } from '../../core/models/compra.model';
 import { DuracionPipe } from '../../shared/pipes/duracion.pipe';
 import { ClasificacionPipe } from '../../shared/pipes/clasificacion.pipe';
@@ -10,7 +14,7 @@ import { ClasificacionPipe } from '../../shared/pipes/clasificacion.pipe';
 @Component({
   selector: 'app-pago',
   standalone: true,
-  imports: [RouterLink, CurrencyPipe, DatePipe, DuracionPipe, ClasificacionPipe],
+  imports: [CurrencyPipe, DatePipe, DuracionPipe, ClasificacionPipe],
   templateUrl: './pago.component.html',
   styleUrl: './pago.component.css',
 })
@@ -42,7 +46,7 @@ export class PagoComponent implements OnInit {
     return edad >= 50;
   });
 
-  protected readonly cuponMonto = CUPON_BIENVENIDA_MONTO;
+  protected readonly cuponMonto = CUPON_BIENVENIDA_PCT * 100;
   protected readonly descuentoMayorPct = Math.round(DESCUENTO_MAYOR_PCT * 100);
 
   ngOnInit(): void {

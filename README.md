@@ -1,59 +1,35 @@
-# CineApp
+# CineApp - Sistema de Gestión de Cine
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.21.
+**Trabajo Práctico 1 - Programación IV**
+**Alumno:** Tomás Nehuén Altamirano
 
-## Development server
+🔗 **URL de la aplicación desplegada:** [https://tp1cine.vercel.app/]
 
-To start a local development server, run:
+## 📌 Resumen del Proyecto
 
-```bash
-ng serve
-```
+CineApp es una Progressive Web App (PWA) desarrollada para la gestión integral de un cine. Permite a los clientes explorar la cartelera, adquirir entradas con selección de butacas en tiempo real, comprar combos en el Candy Bar, y gestionar su historial y cancelaciones. Cuenta con un panel de administración completo para gestionar funciones, asignación automática de salas, precios y catálogos.
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Arquitectura
 
-## Code scaffolding
+El sistema utiliza una arquitectura **BaaS (Backend as a Service)**, separando claramente las responsabilidades:
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+- **Frontend:** Aplicación SPA (Single Page Application) construida con Angular 17+, encargada de la interfaz de usuario, validaciones visuales y la lógica de presentación.
+- **Backend & Base de Datos:** Supabase (PostgreSQL), encargado de la autenticación, almacenamiento, seguridad de acceso a datos y ejecución de reglas de negocio complejas directamente en el servidor.
 
-```bash
-ng generate component component-name
-```
+## Decisiones Técnicas
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+### 1. Angular Moderno (Standalone & Signals)
 
-```bash
-ng generate --help
-```
+Se prescindió completamente de `app.module.ts` adoptando una arquitectura **100% Standalone Components**. La gestión del estado y la reactividad se manejan nativamente mediante **Signals** (`signal`, `computed`), reemplazando el uso intensivo de RxJS para lograr un ciclo de detección de cambios más eficiente y un código más declarativo.
 
-## Building
+### 2. Seguridad a Nivel de Filas (RLS)
 
-To build the project run:
+Para proteger la integridad de los datos de los clientes, se implementaron políticas **Row-Level Security (RLS)** en PostgreSQL. Las tablas sensibles (como `compras`, `perfiles` o `resenas`) evalúan el `auth.uid()` del token JWT en cada petición, garantizando que un usuario autenticado solo pueda consultar o modificar su propia información, bloqueando el acceso a datos ajenos de raíz.
 
-```bash
-ng build
-```
+### 3. Integridad Transaccional (RPC)
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+La lógica crítica de negocio se delegó a la base de datos mediante **Procedimientos Almacenados (RPC)**. Acciones como la "asignación automática de salas verificando 30 minutos de margen" o la "cancelación de compras con devolución de crédito y liberación de butacas" ocurren atómicamente en PostgreSQL. Esto evita condiciones de carrera (race conditions) y previene estados inconsistentes en la base de datos frente a fallos de red del cliente.
 
-## Running unit tests
+### 4. Progressive Web App (PWA)
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+La aplicación cuenta con configuración PWA nativa (`@angular/pwa`), incluyendo `manifest.webmanifest` y estrategias de caché mediante Service Workers, permitiendo su instalación como aplicación nativa en dispositivos móviles y de escritorio.

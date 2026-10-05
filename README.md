@@ -3,7 +3,7 @@
 **Trabajo Práctico 1 - Programación IV**
 **Alumno:** Tomás Nehuén Altamirano
 
-🔗 **URL de la aplicación desplegada:** [https://tp1cine.vercel.app/]
+🔗 **URL de la aplicación desplegada:** https://tp1cine.vercel.app/
 
 ## 📌 Resumen del Proyecto
 

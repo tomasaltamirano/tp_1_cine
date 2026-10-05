@@ -39,15 +39,17 @@ export class CompraService {
     funcion: FuncionDetalle,
     lineasEntrada: LineaEntrada[],
     lineasCandy: LineaCandy[],
+    fechaNacimiento?: string | null,
   ): CarritoCompra {
     const subtotalEntradas = lineasEntrada.reduce((s, l) => s + l.precio, 0);
     const subtotalCandy = lineasCandy.reduce((s, l) => s + l.subtotal, 0);
     let base = subtotalEntradas + subtotalCandy;
 
     const perfil = this.auth.perfil();
+    const nacimiento = fechaNacimiento ?? perfil?.fecha_nacimiento;
     let descuentoMayor = 0;
-    if (perfil?.fecha_nacimiento) {
-      const edad = calcularEdad(perfil.fecha_nacimiento);
+    if (nacimiento) {
+      const edad = calcularEdad(nacimiento);
       if (edad >= 50) {
         descuentoMayor = Math.round(base * DESCUENTO_MAYOR_PCT);
         base -= descuentoMayor;

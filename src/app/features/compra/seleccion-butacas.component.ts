@@ -246,7 +246,15 @@ export class SeleccionButacasComponent implements OnInit {
     const f = this.funcion();
     if (!f || this.lineasEntrada().length === 0) return;
 
-    const carrito = this.compraService.armarCarrito(f, this.lineasEntrada(), this.lineasCandy());
+    const fechaNacimiento =
+      this.auth.perfil()?.fecha_nacimiento ??
+      (fechaNacimientoValida(this.fechaDeclarada()) ? this.fechaDeclarada() : null);
+    const carrito = this.compraService.armarCarrito(
+      f,
+      this.lineasEntrada(),
+      this.lineasCandy(),
+      fechaNacimiento,
+    );
     void this.router.navigate(['/funcion', f.id, 'pago'], {
       state: { carrito },
     });

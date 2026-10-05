@@ -133,12 +133,7 @@ export class CompraService {
     } else {
       // Fallback legacy: ocupar y luego intentar insert
       await this.ocuparButacas(carrito.funcionId, butacaIds);
-      compra = await this.insertarCompraOSimular(
-        carrito,
-        codigoQr,
-        userId,
-        detalleJson,
-      );
+      compra = await this.insertarCompraOSimular(carrito, codigoQr, userId, detalleJson);
     }
 
     await this.aplicarBeneficios(carrito);
@@ -178,10 +173,7 @@ export class CompraService {
       };
     }
 
-    if (
-      error &&
-      (error.code === '23505' || (error.message ?? '').includes('BUTACA_OCUPADA'))
-    ) {
+    if (error && (error.code === '23505' || (error.message ?? '').includes('BUTACA_OCUPADA'))) {
       throw new Error(
         'Alguna de las butacas elegidas acaba de ser ocupada. Volvé al mapa y elegí otras.',
       );
@@ -278,7 +270,10 @@ export class CompraService {
         'Alguna de las butacas elegidas acaba de ser ocupada. Volvé al mapa y elegí otras.',
       );
     }
-    if (error.code === '42501' || (error.message ?? '').toLowerCase().includes('row-level security')) {
+    if (
+      error.code === '42501' ||
+      (error.message ?? '').toLowerCase().includes('row-level security')
+    ) {
       throw new Error(
         'No se pudieron guardar las butacas (RLS). Ejecutá sql/ocupar-butacas.sql en Supabase.',
       );
@@ -309,8 +304,7 @@ export class CompraService {
         puntos_fidelidad: updates['puntos_fidelidad'] as number,
         cupon_bienvenida_usado:
           (updates['cupon_bienvenida_usado'] as boolean) ?? perfil.cupon_bienvenida_usado,
-        credito_disponible:
-          (updates['credito_disponible'] as number) ?? perfil.credito_disponible,
+        credito_disponible: (updates['credito_disponible'] as number) ?? perfil.credito_disponible,
       });
     } catch (e) {
       console.warn('No se pudieron actualizar beneficios del perfil:', e);
@@ -321,5 +315,36 @@ export class CompraService {
     const ts = Date.now().toString(36).toUpperCase();
     const rnd = crypto.randomUUID().replace(/-/g, '').slice(0, 10).toUpperCase();
     return `CINE-${ts}-${rnd}`;
+  }
+
+  // En compra.service.ts
+  async cancelarCompra(compraId: string): Promise<void> {
+    const { error } = await this.supabase.rpc('cancelar_compra', {
+      p_compra_id: compraId,
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  // También necesitarás un método para traer el historial del usuario:
+  async getHistorialCompras(usuarioId: string): Promise<any[]> {
+    const { data, error } = await this.supabase
+      .from('compras')
+      .select(
+        `
+      id, total, estado, fecha,
+      funciones (
+        fecha_hora_inicio,
+        peliculas ( nombre )
+      )
+    `,
+      )
+      .eq('usuario_id', usuarioId)
+      .order('fecha', { ascending: false });
+
+    if (error) throw error;
+    return data;
   }
 }

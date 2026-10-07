@@ -1,7 +1,7 @@
 # CineApp · Documento técnico
 
 Cómo levantar el proyecto, cómo está construido y por qué se resolvió así.
-Qué hace la aplicación y para quién está en [FUNCIONAL.md](FUNCIONAL.md).
+Qué hace la aplicación y para quién está en [FUNCIONAL.md](FUNCIONAL.md)
 
 ## Índice
 

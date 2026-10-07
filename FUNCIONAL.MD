@@ -1,7 +1,7 @@
 # CineApp · Documento funcional
 
 Qué hace la aplicación, para quién y con qué reglas.
-La parte técnica (instalación, arquitectura y decisiones) está en [TECNICO.md](TECNICO.md).
+La parte técnica (instalación, arquitectura y decisiones) está en [TECNICO.md](TECNICO.md)
 
 ## Índice
 

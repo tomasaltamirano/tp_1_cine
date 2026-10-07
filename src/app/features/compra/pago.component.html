@@ -6,7 +6,7 @@
       <button type="button" class="btn-atras" (click)="volver()" aria-label="Volver">←</button>
       <div>
         <h1>Confirmar compra</h1>
-        <p class="sub">Revisá el detalle y confirmá el pago simulado</p>
+        <p class="sub">Validá la tarjeta y confirmá el pago simulado</p>
       </div>
     </header>
 
@@ -95,7 +95,7 @@
               <span>−{{ c.descuentoCupon | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
             </li>
           } @else if (puedeUsarCupon()) {
-            <li class="hint">Cupón de bienvenida de {{ cuponMonto | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }} aplicado automáticamente.</li>
+            <li class="hint">Cupón de bienvenida ({{ cuponPct }} %) aplicado automáticamente.</li>
           }
 
           @if (c.creditoUsado > 0) {
@@ -119,6 +119,80 @@
           <p class="puntos hint">Registrate para acumular puntos y usar el cupón de bienvenida.</p>
         }
       </article>
+
+      <!-- Tarjeta ficticia -->
+      <article class="tarjeta tarjeta-pago">
+        <div class="pago-head">
+          <h2>Datos de tarjeta</h2>
+          <button type="button" class="btn-prueba" (click)="usarTarjetaPrueba()">
+            Usar tarjeta de prueba
+          </button>
+        </div>
+        <p class="hint-pago">
+          Simulación local · No se cobra ni se envían datos a un banco.
+          Probá con <code>4242 4242 4242 4242</code> · CVV <code>000</code> simula rechazo.
+        </p>
+
+        <div class="form-pago">
+          <label class="campo">
+            <span>Titular</span>
+            <input
+              type="text"
+              name="titular"
+              autocomplete="cc-name"
+              placeholder="Como figura en la tarjeta"
+              [(ngModel)]="tarjeta.titular"
+              [disabled]="procesando()"
+            />
+          </label>
+
+          <label class="campo">
+            <span>Número</span>
+            <input
+              type="text"
+              name="numero"
+              inputmode="numeric"
+              autocomplete="cc-number"
+              placeholder="4242 4242 4242 4242"
+              [value]="tarjeta.numero"
+              (input)="onNumeroInput($event)"
+              [disabled]="procesando()"
+              maxlength="23"
+            />
+          </label>
+
+          <div class="fila-dos">
+            <label class="campo">
+              <span>Vencimiento</span>
+              <input
+                type="text"
+                name="vencimiento"
+                inputmode="numeric"
+                autocomplete="cc-exp"
+                placeholder="MM/AA"
+                [value]="tarjeta.vencimiento"
+                (input)="onVencimientoInput($event)"
+                [disabled]="procesando()"
+                maxlength="5"
+              />
+            </label>
+            <label class="campo">
+              <span>CVV</span>
+              <input
+                type="password"
+                name="cvv"
+                inputmode="numeric"
+                autocomplete="cc-csc"
+                placeholder="123"
+                [value]="tarjeta.cvv"
+                (input)="onCvvInput($event)"
+                [disabled]="procesando()"
+                maxlength="4"
+              />
+            </label>
+          </div>
+        </div>
+      </article>
     </div>
 
     <footer class="barra-pago">
@@ -137,13 +211,13 @@
           (click)="confirmarPago()"
         >
           @if (procesando()) {
-            Procesando…
+            Validando tarjeta…
           } @else {
-            Confirmar y pagar
+            Pagar y confirmar
           }
         </button>
       </div>
-      <p class="nota-sim">Simulación de pago · No se cobra dinero real · El QR se genera al confirmar</p>
+      <p class="nota-sim">Simulación de pago · Validación Luhn + vencimiento · El QR se genera al confirmar</p>
     </footer>
   </section>
 }

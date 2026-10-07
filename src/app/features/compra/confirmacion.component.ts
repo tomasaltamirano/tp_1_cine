@@ -3,6 +3,7 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CompraService } from '../../core/services/compra.service';
 import { CompraDetalle } from '../../core/models/compra.model';
+import { descargarTicketPdf } from '../../core/utils/ticket-pdf';
 
 @Component({
   selector: 'app-confirmacion',
@@ -17,11 +18,12 @@ export class ConfirmacionComponent implements OnInit {
   private readonly compraService = inject(CompraService);
 
   protected readonly detalle = signal<CompraDetalle | null>(null);
+  protected readonly descargando = signal(false);
+  protected readonly errorPdf = signal<string | null>(null);
 
   protected readonly qrUrl = computed(() => {
     const d = this.detalle();
     if (!d) return '';
-    // QR generado vía API pública (contenido = código de la compra)
     const data = encodeURIComponent(d.compra.codigo_qr);
     return `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=8&data=${data}`;
   });
@@ -37,6 +39,20 @@ export class ConfirmacionComponent implements OnInit {
       return;
     }
     void this.router.navigateByUrl('/peliculas');
+  }
+
+  protected async descargarPdf(): Promise<void> {
+    const d = this.detalle();
+    if (!d || this.descargando()) return;
+    this.descargando.set(true);
+    this.errorPdf.set(null);
+    try {
+      await descargarTicketPdf(d);
+    } catch {
+      this.errorPdf.set('No se pudo generar el PDF. Probá de nuevo.');
+    } finally {
+      this.descargando.set(false);
+    }
   }
 
   protected irCartelera(): void {

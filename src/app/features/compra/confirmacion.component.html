@@ -64,7 +64,23 @@
       </p>
     </article>
 
+    @if (errorPdf()) {
+      <p class="alert-pdf" role="alert">{{ errorPdf() }}</p>
+    }
+
     <div class="acciones">
+      <button
+        type="button"
+        class="btn-pdf"
+        [disabled]="descargando()"
+        (click)="descargarPdf()"
+      >
+        @if (descargando()) {
+          Generando PDF…
+        } @else {
+          Descargar ticket PDF
+        }
+      </button>
       <button type="button" class="btn-primario" (click)="irCartelera()">Volver a la cartelera</button>
       <a routerLink="/perfil" class="btn-sec">Ver mi perfil</a>
     </div>

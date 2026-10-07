@@ -12,8 +12,8 @@ Aplicación web para un cine: cartelera, compra de entradas con mapa de butacas 
 
 | Documento                 | Qué contiene                                                                         |
 | ------------------------- | ------------------------------------------------------------------------------------ |
-| [FUNCIONAL](FUNCIONAL.md) | Qué hace la app: roles, pantallas, flujo de compra, reglas y lista de requerimientos |
-| [TECNICO](TECNICO.md)     | Cómo está hecha: instalación, arquitectura, modelo de datos y decisiones técnicas    |
+| [FUNCIONAL](FUNCIONAL.MD) | Qué hace la app: roles, pantallas, flujo de compra, reglas y lista de requerimientos |
+| [TECNICO](TECNICO.MD)     | Cómo está hecha: instalación, arquitectura, modelo de datos y decisiones técnicas    |
 
 ## Qué hace
 

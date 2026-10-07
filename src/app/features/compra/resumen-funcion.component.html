@@ -42,7 +42,7 @@
           <div class="precio">
             <span>Entrada general</span>
             <strong>{{ precioNormal() | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</strong>
-            @if (enPreventa()) { <span class="tag-preventa">Preventa</span> }
+            @if (enPreventa()) { <span class="tag-preventa">Preventa · precio especial</span> }
           </div>
           <div class="precio">
             <span>Entrada VIP</span>

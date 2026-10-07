@@ -425,3 +425,195 @@
   text-align: center;
   color: #9ca3af;
 }
+
+/* --- Próximamente (especificidad alta para no pelear con .cinema-layout / .card-actions) --- */
+.cinema-layout .proximamente-section {
+  margin-bottom: 3rem;
+  padding: 1.35rem 1.35rem 1.6rem;
+  border-radius: 16px;
+  background: linear-gradient(
+    160deg,
+    rgba(251, 191, 36, 0.08) 0%,
+    rgba(15, 20, 31, 0.95) 45%
+  );
+  border: 1px solid rgba(251, 191, 36, 0.22);
+}
+
+.cinema-layout .proximamente-section .section-title {
+  color: #fbbf24;
+  border-bottom-color: rgba(251, 191, 36, 0.3);
+  margin-bottom: 0.5rem;
+}
+
+.cinema-layout .proximamente-section .section-sub {
+  margin: 0 0 1.35rem;
+  font-size: 0.85rem;
+  color: #9ca3af;
+}
+
+.cinema-layout .proximamente-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.35rem;
+}
+
+.cinema-layout .proximamente-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: #0f141f;
+  border: 1px solid #2a3347;
+  border-radius: 14px;
+  overflow: hidden;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cinema-layout .proximamente-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(251, 191, 36, 0.5);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.5);
+}
+
+.cinema-layout .proximamente-card > img,
+.cinema-layout .proximamente-card > .poster-placeholder {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  cursor: pointer;
+  border-radius: 0;
+  filter: saturate(0.7) brightness(0.85);
+  transition: filter 0.25s ease, transform 0.25s ease;
+}
+
+.cinema-layout .proximamente-card:hover > img {
+  filter: saturate(1) brightness(1);
+  transform: scale(1.04);
+}
+
+.cinema-layout .proximamente-card > .poster-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1a2233;
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+/* Badge sobre el poster (no cinta rotada: overflow:hidden la recortaba) */
+.cinema-layout .proximamente-card > img + .proximamente-info .badge-proximo,
+.cinema-layout .badge-proximo {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #0a0e18;
+  background: #fbbf24;
+  border: none;
+  padding: 0.28rem 0.55rem;
+  border-radius: 4px;
+}
+
+.cinema-layout .proximamente-info {
+  padding: 0.9rem 1rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 1;
+  text-align: left;
+}
+
+.cinema-layout .proximamente-info h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #f3f4f6;
+  line-height: 1.3;
+}
+
+.cinema-layout .proximamente-info .fecha-estreno {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+/* Gana a .card-actions .btn-detalles (borde gris / texto secundario) */
+.cinema-layout .proximamente-info .btn-detalles,
+.cinema-layout .proximamente-card .btn-detalles {
+  margin-top: 0.5rem;
+  width: 100%;
+  flex: none;
+  padding: 0.55rem 0.75rem;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #0a0e18;
+  background-color: #fbbf24;
+  border: 1px solid #fbbf24;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.cinema-layout .proximamente-info .btn-detalles:hover,
+.cinema-layout .proximamente-card .btn-detalles:hover {
+  background-color: #f59e0b;
+  border-color: #f59e0b;
+  color: #0a0e18;
+}
+
+@media (max-width: 640px) {
+  .cinema-layout .proximamente-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.85rem;
+  }
+}
+
+
+.cinema-layout .proximamente-poster {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+.cinema-layout .proximamente-poster img,
+.cinema-layout .proximamente-poster .poster-placeholder {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  display: block;
+  filter: saturate(0.7) brightness(0.85);
+  transition: filter 0.25s ease, transform 0.25s ease;
+}
+.cinema-layout .proximamente-card:hover .proximamente-poster img {
+  filter: saturate(1) brightness(1);
+  transform: scale(1.04);
+}
+.cinema-layout .proximamente-poster .badge-proximo {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 1;
+  margin: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Preventa en horarios */
+.time-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+}
+.time-btn.preventa {
+  border-color: #f59e0b;
+}
+.tag-preventa {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #fbbf24;
+}
+.precio-hora {
+  font-size: 0.7rem;
+  color: var(--text-muted, #8b93a7);
+}

@@ -48,6 +48,34 @@
       <p>{{ error() }}</p>
     </div>
   } @else {
+    @if (peliculasProximamente().length > 0) {
+      <div class="proximamente-section">
+        <h2 class="section-title">Próximamente</h2>
+        <p class="section-sub">Estrenos futuros · activá recordatorio cuando haya funciones</p>
+        <div class="proximamente-grid">
+          @for (peli of peliculasProximamente(); track peli.id) {
+            <article class="proximamente-card">
+              <div class="proximamente-poster" (click)="irADetalle(peli, $event)">
+                @if (peli.imagen_url) {
+                  <img [src]="peli.imagen_url" [alt]="peli.nombre" />
+                } @else {
+                  <div class="poster-placeholder">Sin Imagen</div>
+                }
+                <span class="badge-proximo">Próximo estreno</span>
+              </div>
+              <div class="proximamente-info">
+                <h3>{{ peli.nombre }}</h3>
+                <p class="fecha-estreno">Estreno: {{ formatoEstreno(peli.fecha_estreno) }}</p>
+                <button type="button" class="btn-detalles" (click)="irADetalle(peli, $event)">
+                  Ver detalles
+                </button>
+              </div>
+            </article>
+          }
+        </div>
+      </div>
+    }
+
     @if (peliculasDestacadas().length > 0) {
       <div class="hero-section">
         <h2 class="section-title">Películas Destacadas</h2>
@@ -65,18 +93,13 @@
               }
               <div class="hero-info">
                 <h3>{{ peli.nombre }}</h3>
-                <p>
-                  {{ peli.duracion_minutos | duracion }} |
-                  {{ peli.clasificacion_edad | clasificacion }}
-                </p>
+                <p>{{ peli.duracion_minutos | duracion }} | {{ peli.clasificacion_edad | clasificacion }}</p>
 
                 <div class="card-actions">
                   <button class="btn-comprar" (click)="abrirModalHorarios(peli, $event)">
                     Horarios
                   </button>
-                  <button class="btn-detalles" (click)="irADetalle(peli, $event)">
-                    Ver detalles
-                  </button>
+                  <button class="btn-detalles" (click)="irADetalle(peli, $event)">Ver detalles</button>
                 </div>
               </div>
             </article>
@@ -101,17 +124,14 @@
               <div class="standard-info">
                 <h4>{{ peli.nombre }}</h4>
                 <span
-                  >{{ peli.duracion_minutos | duracion }} |
-                  {{ peli.clasificacion_edad | clasificacion }}</span
+                  >{{ peli.duracion_minutos | duracion }} | {{ peli.clasificacion_edad | clasificacion }}</span
                 >
 
                 <div class="card-actions">
                   <button class="btn-comprar" (click)="abrirModalHorarios(peli, $event)">
                     Horarios
                   </button>
-                  <button class="btn-detalles" (click)="irADetalle(peli, $event)">
-                    Ver detalles
-                  </button>
+                  <button class="btn-detalles" (click)="irADetalle(peli, $event)">Ver detalles</button>
                 </div>
               </div>
             </article>
@@ -177,9 +197,14 @@
               <h4>HORARIOS DISPONIBLES</h4>
               <div class="time-grid">
                 @for (h of horariosDisponibles(); track h.funcion.id) {
-                  <button class="time-btn" (click)="irAButacas(h.funcion)">
+                  <button class="time-btn" [class.preventa]="h.preventa" (click)="irAButacas(h.funcion)">
                     <span class="time">{{ h.hora }}</span>
                     <span class="lang">{{ h.funcion.formato }}</span>
+                    @if (h.preventa) {
+                      <span class="tag-preventa">Preventa · {{ h.precio | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+                    } @else {
+                      <span class="precio-hora">{{ h.precio | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+                    }
                   </button>
                 }
               </div>

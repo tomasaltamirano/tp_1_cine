@@ -8,6 +8,7 @@ import { Funcion } from '../../core/models/funcion.model';
 import { FuncionesService } from '../../core/services/funciones.service';
 import { DuracionPipe } from '../../shared/pipes/duracion.pipe';
 import { ClasificacionPipe } from '../../shared/pipes/clasificacion.pipe';
+import { estaEnPreventa, esProximamente, precioEntrada } from '../../core/utils/precios';
 
 @Component({
   selector: 'app-peliculas-list',
@@ -77,13 +78,19 @@ export class PeliculasListComponent implements OnInit {
   horariosDisponibles = computed(() =>
     this.funcionesDelDia()
       .filter((f) => `${f.formato}|${f.idioma}` === this.formatoActivo())
-      .map((f) => ({ funcion: f, hora: horaLocal(f.fecha_hora_inicio) })),
+      .map((f) => ({
+        funcion: f,
+        hora: horaLocal(f.fecha_hora_inicio),
+        preventa: estaEnPreventa(f),
+        precio: precioEntrada(f),
+      })),
   );
 
   terminoBusqueda = signal<string>('');
   generosActivos = signal<string[]>([]);
   mostrarCategorias = signal<boolean>(false);
 
+  /** Chips del filtro: desde la tabla generos, o fallback si está vacía. */
   listaGeneros = signal<string[]>([
     'Acción',
     'Comedia',
@@ -97,6 +104,11 @@ export class PeliculasListComponent implements OnInit {
     this.mostrarCategorias.update((v) => !v);
   }
 
+  /**
+   * Filtro combinado:
+   * - texto en el nombre
+   * - si hay géneros activos, la película debe tener AL MENOS uno (OR)
+   */
   peliculasFiltradas = computed(() => {
     let filtradas = this.peliculas();
     const texto = this.terminoBusqueda().trim().toLowerCase();
@@ -116,9 +128,19 @@ export class PeliculasListComponent implements OnInit {
     return filtradas;
   });
 
-  // Top 3 y Grilla basadas en las filtradas
-  peliculasDestacadas = computed(() => this.peliculasFiltradas().slice(0, 3));
-  peliculasGrilla = computed(() => this.peliculasFiltradas().slice(3));
+  /** En cartelera: ya estrenaron (fecha_estreno <= hoy). */
+  private readonly enCartelera = computed(() =>
+    this.peliculasFiltradas().filter((p) => !esProximamente(p.fecha_estreno)),
+  );
+
+  /** Próximamente: estreno futuro (alerta de disponibilidad). */
+  peliculasProximamente = computed(() =>
+    this.peliculasFiltradas().filter((p) => esProximamente(p.fecha_estreno)),
+  );
+
+  // Top 3 y grilla solo de las ya en cartelera
+  peliculasDestacadas = computed(() => this.enCartelera().slice(0, 3));
+  peliculasGrilla = computed(() => this.enCartelera().slice(3));
 
   // --- MÉTODOS
   async ngOnInit(): Promise<void> {
@@ -136,6 +158,16 @@ export class PeliculasListComponent implements OnInit {
     } finally {
       this.cargando.set(false);
     }
+  }
+
+  /** Fecha de estreno legible para la sección Próximamente. */
+  formatoEstreno(fecha: string): string {
+    const [y, m, d] = fecha.slice(0, 10).split('-').map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString('es-AR', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
   }
 
   toggleGenero(genero: string): void {

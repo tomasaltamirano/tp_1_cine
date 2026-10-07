@@ -9,12 +9,20 @@ import { Pelicula, Resena } from '../../core/models/pelicula.model';
 import { Funcion } from '../../core/models/funcion.model';
 import { DuracionPipe } from '../../shared/pipes/duracion.pipe';
 import { ClasificacionPipe } from '../../shared/pipes/clasificacion.pipe';
-import { precioEntrada } from '../../core/utils/precios';
+import { estaEnPreventa, esProximamente, precioEntrada } from '../../core/utils/precios';
 
 @Component({
   selector: 'app-pelicula-detalle',
   standalone: true,
-  imports: [RouterLink, FormsModule, DatePipe, DecimalPipe, DuracionPipe, ClasificacionPipe],
+  imports: [
+    RouterLink,
+    FormsModule,
+    CurrencyPipe,
+    DatePipe,
+    DecimalPipe,
+    DuracionPipe,
+    ClasificacionPipe,
+  ],
   templateUrl: './pelicula-detalle.component.html',
   styleUrl: './pelicula-detalle.component.css',
 })
@@ -57,9 +65,7 @@ export class PeliculaDetalleComponent implements OnInit {
 
   protected readonly fechaActiva = computed(() => {
     const lista = this.fechasDisponibles();
-    return (
-      lista.find((x) => x.clave === this.fechaSeleccionada())?.clave ?? lista[0]?.clave ?? null
-    );
+    return lista.find((x) => x.clave === this.fechaSeleccionada())?.clave ?? lista[0]?.clave ?? null;
   });
 
   private readonly funcionesDelDia = computed(() =>
@@ -78,9 +84,7 @@ export class PeliculaDetalleComponent implements OnInit {
 
   protected readonly formatoActivo = computed(() => {
     const lista = this.formatosDisponibles();
-    return (
-      lista.find((x) => x.clave === this.formatoSeleccionado())?.clave ?? lista[0]?.clave ?? null
-    );
+    return lista.find((x) => x.clave === this.formatoSeleccionado())?.clave ?? lista[0]?.clave ?? null;
   });
 
   protected readonly horariosDisponibles = computed(() =>
@@ -90,7 +94,12 @@ export class PeliculaDetalleComponent implements OnInit {
         funcion: f,
         hora: horaLocal(f.fecha_hora_inicio),
         precio: precioEntrada(f),
+        preventa: estaEnPreventa(f),
       })),
+  );
+
+  protected readonly esProximamentePeli = computed(() =>
+    esProximamente(this.pelicula()?.fecha_estreno),
   );
 
   /** Array 1..5 para pintar estrellas del promedio. */
@@ -128,19 +137,14 @@ export class PeliculaDetalleComponent implements OnInit {
   private async cargarResenas(peliculaId: string): Promise<void> {
     try {
       const lista = await this.peliculasService.getResenas(peliculaId);
-      const listaNormalizada = lista.map((r) => ({
-        ...r,
-        id: r.id ?? '',
-      })) as Resena[];
-
-      this.resenas.set(listaNormalizada);
-      if (listaNormalizada.length === 0) {
+      this.resenas.set(lista);
+      if (lista.length === 0) {
         this.promedio.set(0);
         this.cantidadResenas.set(0);
       } else {
-        const suma = listaNormalizada.reduce((s, r) => s + (r.estrellas ?? 0), 0);
-        this.promedio.set(Math.round((suma / listaNormalizada.length) * 10) / 10);
-        this.cantidadResenas.set(listaNormalizada.length);
+        const suma = lista.reduce((s, r) => s + (r.estrellas ?? 0), 0);
+        this.promedio.set(Math.round((suma / lista.length) * 10) / 10);
+        this.cantidadResenas.set(lista.length);
       }
     } catch (e) {
       console.error('No se pudieron cargar reseñas:', e);

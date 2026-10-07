@@ -113,7 +113,7 @@
       <ul class="lista-resenas">
         @for (r of resenas(); track r.id) {
           <li>
-            <div class="r-estrellas" aria-label="{{ r.estrellas }} de 5">
+            <div class="r-estrellas" aria-label="{{ r.estrellas ?? 0 }} de 5">
               @for (n of [1, 2, 3, 4, 5]; track n) {
                 <span [class.llena]="(r.estrellas ?? 0) >= n">★</span>
               }
@@ -183,9 +183,22 @@
               <h4>HORARIOS</h4>
               <div class="time-grid">
                 @for (h of horariosDisponibles(); track h.funcion.id) {
-                  <button type="button" class="time-btn" (click)="irAFuncion(h.funcion)">
+                  <button
+                    type="button"
+                    class="time-btn"
+                    [class.preventa]="h.preventa"
+                    (click)="irAFuncion(h.funcion)"
+                  >
                     <span class="time">{{ h.hora }}</span>
                     <span class="lang">{{ h.funcion.formato }}</span>
+                    @if (h.preventa) {
+                      <span class="tag-preventa">Preventa</span>
+                    }
+                    @if (h.precio) {
+                      <span class="precio-hora">{{
+                        h.precio | currency: 'ARS' : 'symbol-narrow' : '1.0-0'
+                      }}</span>
+                    }
                   </button>
                 }
               </div>
